@@ -95,11 +95,10 @@ function onServerEvent(e) {
 
     if (msg === "connection_established") {
         // Server acknowledged connection, wait for game state updates
-        return;
     } else if (msg === "waiting_for_player") {
         gamePhase = "waiting";
         drawGame();
-    } else if (msg === "both_players_connected") {
+    } else if (msg === "lobby_full") {
         gamePhase = "ready_up";
         drawGame();
     } else if (msg === "player_ready") {

@@ -13,7 +13,7 @@ type BroadcastMsg string
 const (
 	ConnectionEstablished BroadcastMsg = "connection_established"
 	WaitingForPlayer BroadcastMsg = "waiting_for_player"
-	BothPlayersConnected BroadcastMsg = "both_players_connected"
+	LobbyFull BroadcastMsg = "lobby_full"
 	PlayerReady BroadcastMsg = "player_ready"
 	AllPlayersReady BroadcastMsg = "all_players_ready"
 )
@@ -52,7 +52,7 @@ type Session struct {
 	Player1 Player
 	Player2 Player
 	Hands int
-	GameStarted bool
+	LobbyFull bool
 }
 
 type Player struct {
@@ -99,16 +99,23 @@ func loop(appState *AppState) {
 	player1 := &session.Player1
 	player2 := &session.Player2
 
+	lobbyFull := false
+
 	for {
 		if player1.InGame && player2.InGame	{
-			session.GameStarted = true
+			lobbyFull = true
 		} else {
-			session.GameStarted = false
+			lobbyFull = false
 		}
 
-		if !session.GameStarted { 
+		if lobbyFull && !session.LobbyFull {
+			broadcast(appState, User, LobbyFull)
+		}
+
+		if !session.LobbyFull {
 			continue 
 		}
+		
 
 	}
 }
