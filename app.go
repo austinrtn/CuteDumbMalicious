@@ -42,12 +42,6 @@ type Client struct {
 	Ch chan string
 }
 
-type Card struct {
-	Player string `json:"player"`
-	Val  int    `json:"num"`
-	Suit string `json:"suit"`
-}
-
 type Deck struct {
 	Cards [52]Card
 	CardsDealt int
@@ -258,11 +252,11 @@ func manageGameState(appState *AppState, res http.ResponseWriter, req *http.Requ
 		var winnerName string
 		var winnerCard Card
 
-		if player1.SubmittedCard.Val > player2.SubmittedCard.Val {
+		if player1.SubmittedCard.Num > player2.SubmittedCard.Num {
 			winnerName = player1.Name
 			winnerCard = player1.SubmittedCard
 			player1.Points++
-		} else if player2.SubmittedCard.Val > player1.SubmittedCard.Val {
+		} else if player2.SubmittedCard.Num > player1.SubmittedCard.Num {
 			winnerName = player2.Name
 			winnerCard = player2.SubmittedCard
 			player2.Points++
@@ -386,7 +380,7 @@ func submitCard(appState *AppState, res http.ResponseWriter, req *http.Request) 
 
 	json.NewDecoder(req.Body).Decode(&card)
 	
-	fmt.Printf("%s | %d | %s\n", card.Player, card.Val, card.Suit)
+	fmt.Printf("%s | %d | %s\n", card.Player, card.Num, card.Suit)
 
 	if card.Player == game.Player1.Name {
 		player = &game.Player1

@@ -1,0 +1,14 @@
+[Card]
+player = "string"
+suit = "suit"
+num = "int"
+
+[Card.json_tags]
+player = "player"
+suit = "suit"
+num = "num"
+
+[Suit]
+type = "enum"
+values = ["HEARTS", "DIAMONDS", "CLUBS", "SPADES"]
+
