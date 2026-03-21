@@ -1,6 +1,6 @@
 [Card]
 player = "string"
-suit = "suit"
+seal = "seal"
 num = "int"
 
 [Card.json_tags]
@@ -8,7 +8,7 @@ player = "player"
 suit = "suit"
 num = "num"
 
-[Suit]
+[Seal]
 type = "enum"
-values = ["HEARTS", "DIAMONDS", "CLUBS", "SPADES"]
+values = ["SWAP", "PEEK", "TAX", "WILD", "RESISTANCE", "STATIC"]
 

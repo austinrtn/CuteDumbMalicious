@@ -1,13 +1,15 @@
 pub const Card = struct {
 	player: []const u8 = "",
-	suit: Suit = .HEARTS,
+	seal: Seal = .HEARTS,
 	num: i32 = 0,
 };
 
-pub const Suit = enum {
-	HEARTS,
-	DIAMONDS,
-	CLUBS,
-	SPADES,
+pub const Seal = enum {
+	SWAP,
+	PEEK,
+	TAX,
+	WILD,
+	RESISTANCE,
+	STATIC,
 };
 
