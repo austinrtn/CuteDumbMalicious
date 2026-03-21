@@ -1,3 +1,7 @@
 ./photos/
 ./zig/zig-out/
 ./zig/.zig-cache/
+
+photos/
+zig/zig-out/
+zig/.zig-cache/
