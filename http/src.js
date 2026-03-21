@@ -83,7 +83,7 @@ function onCreate(hands) {
 		body: JSON.stringify(data),
 	};
 
-	fetch("/startNewGame", options)
+	fetch("/createNewGame", options)
 	.then(res => res.text().then(() => {
 		if(res.ok) {
 			console.log("New game created successfully");
@@ -108,7 +108,7 @@ function connectLobby() {
     refreshBtn.className = "menu-btn";
     refreshBtn.textContent = "Refresh";
     refreshBtn.onclick = () => {
-        fetch("/sessionExists")
+        fetch("/gameExists")
         .then(res => {
             if(res.ok) {
                 onConnect();
@@ -121,7 +121,7 @@ function connectLobby() {
     backBtn.textContent = "Back";
     backBtn.onclick = () => loadMenu(mainMenu);
 
-    fetch("/sessionExists")
+    fetch("/gameExists")
     .then(res => {
         if(res.ok) {
             onConnect();

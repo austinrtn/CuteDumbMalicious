@@ -1,0 +1,1168 @@
+{
+  "round": 6,
+  "is_final_round": false,
+  "deck_initialization": {
+    "total_sealed_cards": 29,
+    "seal_counts": {
+      "static": 6,
+      "peek": 3,
+      "resistance": 5,
+      "wild": 6,
+      "swap": 4,
+      "tax": 5
+    }
+  },
+  "hands": [
+    {
+      "hand": 1,
+      "last_round_conversions": [],
+      "duplicate_seal_conversions": [],
+      "suite_sweep_reward": [],
+      "played": {
+        "player_a": [
+          {
+            "id": "card_6000",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6001",
+            "archetype": "tactician",
+            "rock": 5,
+            "paper": 3,
+            "scissors": 1,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6002",
+            "archetype": "sentinel",
+            "rock": 3,
+            "paper": 3,
+            "scissors": 3,
+            "seal": "static",
+            "static_current_value": 30,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6003",
+            "archetype": "heavy_lean",
+            "rock": 7,
+            "paper": 2,
+            "scissors": 0,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6004",
+            "archetype": "nuke",
+            "rock": 9,
+            "paper": 0,
+            "scissors": 0,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          }
+        ],
+        "player_b": [
+          {
+            "id": "card_6005",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": "wild",
+            "static_current_value": null,
+            "wild_assignment": {
+              "rock": 3,
+              "paper": 4,
+              "scissors": 2
+            }
+          },
+          {
+            "id": "card_6006",
+            "archetype": "tactician",
+            "rock": 5,
+            "paper": 3,
+            "scissors": 1,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6007",
+            "archetype": "heavy_lean",
+            "rock": 7,
+            "paper": 2,
+            "scissors": 0,
+            "seal": "resistance",
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6008",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6009",
+            "archetype": "sentinel",
+            "rock": 3,
+            "paper": 3,
+            "scissors": 3,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          }
+        ]
+      },
+      "held": {
+        "player_a": [
+          {
+            "id": "card_6010",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6011",
+            "archetype": "heavy_lean",
+            "rock": 7,
+            "paper": 2,
+            "scissors": 0,
+            "seal": "swap",
+            "static_current_value": null,
+            "wild_assignment": null
+          }
+        ],
+        "player_b": [
+          {
+            "id": "card_6012",
+            "archetype": "tactician",
+            "rock": 5,
+            "paper": 3,
+            "scissors": 1,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6013",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          }
+        ]
+      },
+      "swap_resolution": [],
+      "raw_totals": {
+        "player_a": {
+          "rock": 28,
+          "paper": 11,
+          "scissors": 6
+        },
+        "player_b": {
+          "rock": 23,
+          "paper": 15,
+          "scissors": 8
+        }
+      },
+      "resistance_effects": [
+        {
+          "card_id": "card_6007",
+          "suite": "rock",
+          "incoming_damage_before": 28,
+          "incoming_damage_after": 14
+        }
+      ],
+      "surviving_totals": {
+        "player_a": {
+          "rock": 14,
+          "paper": 0,
+          "scissors": 0
+        },
+        "player_b": {
+          "rock": 0,
+          "paper": 0,
+          "scissors": 2
+        }
+      },
+      "suite_winners": {
+        "rock": "player_a",
+        "paper": "tie",
+        "scissors": "player_b"
+      },
+      "tax_resolution": [],
+      "scoring": {
+        "player_a": {
+          "rock": 185,
+          "paper": 0,
+          "scissors": 0,
+          "static_cards": [
+            {
+              "card_id": "card_6002",
+              "static_value_before_doubling": 30,
+              "doubled": false,
+              "final_static_score": 300
+            }
+          ],
+          "tax_bonus": 0,
+          "suite_sweep_bonus": 0,
+          "round_total": 485
+        },
+        "player_b": {
+          "rock": 0,
+          "paper": 0,
+          "scissors": 20,
+          "static_cards": [],
+          "tax_bonus": 0,
+          "suite_sweep_bonus": 0,
+          "round_total": 20
+        }
+      },
+      "running_total": {
+        "player_a": 485,
+        "player_b": 20
+      },
+      "suite_sweep": {
+        "player_a": false,
+        "player_b": false
+      },
+      "peek_resolutions": []
+    },
+    {
+      "hand": 2,
+      "last_round_conversions": [],
+      "duplicate_seal_conversions": [],
+      "suite_sweep_reward": [],
+      "played": {
+        "player_a": [
+          {
+            "id": "card_6010",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6014",
+            "archetype": "tactician",
+            "rock": 5,
+            "paper": 3,
+            "scissors": 1,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6015",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6016",
+            "archetype": "heavy_lean",
+            "rock": 7,
+            "paper": 2,
+            "scissors": 0,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6017",
+            "archetype": "nuke",
+            "rock": 9,
+            "paper": 0,
+            "scissors": 0,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          }
+        ],
+        "player_b": [
+          {
+            "id": "card_6012",
+            "archetype": "tactician",
+            "rock": 5,
+            "paper": 3,
+            "scissors": 1,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6013",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6018",
+            "archetype": "sentinel",
+            "rock": 3,
+            "paper": 3,
+            "scissors": 3,
+            "seal": "tax",
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6019",
+            "archetype": "heavy_lean",
+            "rock": 7,
+            "paper": 2,
+            "scissors": 0,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6020",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          }
+        ]
+      },
+      "held": {
+        "player_a": [
+          {
+            "id": "card_6011",
+            "archetype": "heavy_lean",
+            "rock": 7,
+            "paper": 2,
+            "scissors": 0,
+            "seal": "swap",
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6002",
+            "archetype": "sentinel",
+            "rock": 3,
+            "paper": 3,
+            "scissors": 3,
+            "seal": "static",
+            "static_current_value": 40,
+            "wild_assignment": null
+          }
+        ],
+        "player_b": [
+          {
+            "id": "card_6005",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": "wild",
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6006",
+            "archetype": "tactician",
+            "rock": 5,
+            "paper": 3,
+            "scissors": 1,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          }
+        ]
+      },
+      "swap_resolution": [],
+      "raw_totals": {
+        "player_a": {
+          "rock": 29,
+          "paper": 11,
+          "scissors": 5
+        },
+        "player_b": {
+          "rock": 23,
+          "paper": 14,
+          "scissors": 8
+        }
+      },
+      "resistance_effects": [],
+      "surviving_totals": {
+        "player_a": {
+          "rock": 6,
+          "paper": 0,
+          "scissors": 0
+        },
+        "player_b": {
+          "rock": 0,
+          "paper": 3,
+          "scissors": 0
+        }
+      },
+      "suite_winners": {
+        "rock": "player_a",
+        "paper": "player_b",
+        "scissors": "tie"
+      },
+      "tax_resolution": [
+        {
+          "card_id": "card_6018",
+          "suite": "rock",
+          "tiered_score_before_tax": 75,
+          "base_rate_score": 60,
+          "tier_premium_stripped": 15,
+          "player_a_rock_reduced_to": 60,
+          "tax_bonus_to_player_b": 15
+        },
+        {
+          "card_id": "card_6018",
+          "suite": "paper",
+          "tiered_score_before_tax": 45,
+          "base_rate_score": 30,
+          "tier_premium_stripped": 15,
+          "player_a_paper_reduced_to": 30,
+          "tax_bonus_to_player_b": 15
+        },
+        {
+          "card_id": "card_6018",
+          "suite": "scissors",
+          "tiered_score_before_tax": 0,
+          "base_rate_score": 0,
+          "tier_premium_stripped": 0,
+          "player_a_scissors_reduced_to": 0,
+          "tax_bonus_to_player_b": 0
+        }
+      ],
+      "scoring": {
+        "player_a": {
+          "rock": 60,
+          "paper": 30,
+          "scissors": 0,
+          "static_cards": [],
+          "tax_bonus": 0,
+          "suite_sweep_bonus": 0,
+          "round_total": 90
+        },
+        "player_b": {
+          "rock": 0,
+          "paper": 45,
+          "scissors": 0,
+          "static_cards": [],
+          "tax_bonus": 30,
+          "suite_sweep_bonus": 0,
+          "round_total": 75
+        }
+      },
+      "running_total": {
+        "player_a": 575,
+        "player_b": 95
+      },
+      "suite_sweep": {
+        "player_a": false,
+        "player_b": false
+      },
+      "peek_resolutions": []
+    },
+    {
+      "hand": 3,
+      "last_round_conversions": [],
+      "duplicate_seal_conversions": [],
+      "suite_sweep_reward": [],
+      "played": {
+        "player_a": [
+          {
+            "id": "card_6011",
+            "archetype": "heavy_lean",
+            "rock": 7,
+            "paper": 2,
+            "scissors": 0,
+            "seal": "swap",
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6002",
+            "archetype": "sentinel",
+            "rock": 3,
+            "paper": 3,
+            "scissors": 3,
+            "seal": "static",
+            "static_current_value": 50,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6021",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6022",
+            "archetype": "tactician",
+            "rock": 5,
+            "paper": 3,
+            "scissors": 1,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6023",
+            "archetype": "nuke",
+            "rock": 9,
+            "paper": 0,
+            "scissors": 0,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          }
+        ],
+        "player_b": [
+          {
+            "id": "card_6005",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": "wild",
+            "static_current_value": null,
+            "wild_assignment": {
+              "rock": 2,
+              "paper": 4,
+              "scissors": 3
+            }
+          },
+          {
+            "id": "card_6006",
+            "archetype": "tactician",
+            "rock": 5,
+            "paper": 3,
+            "scissors": 1,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6024",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": "peek",
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6025",
+            "archetype": "heavy_lean",
+            "rock": 7,
+            "paper": 2,
+            "scissors": 0,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6026",
+            "archetype": "sentinel",
+            "rock": 3,
+            "paper": 3,
+            "scissors": 3,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          }
+        ]
+      },
+      "held": {
+        "player_a": [
+          {
+            "id": "card_6014",
+            "archetype": "tactician",
+            "rock": 5,
+            "paper": 3,
+            "scissors": 1,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6015",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          }
+        ],
+        "player_b": [
+          {
+            "id": "card_6018",
+            "archetype": "sentinel",
+            "rock": 3,
+            "paper": 3,
+            "scissors": 3,
+            "seal": "tax",
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6019",
+            "archetype": "heavy_lean",
+            "rock": 7,
+            "paper": 2,
+            "scissors": 0,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          }
+        ]
+      },
+      "swap_resolution": [],
+      "raw_totals": {
+        "player_a": {
+          "rock": 28,
+          "paper": 11,
+          "scissors": 6
+        },
+        "player_b": {
+          "rock": 23,
+          "paper": 15,
+          "scissors": 9
+        }
+      },
+      "resistance_effects": [],
+      "surviving_totals": {
+        "player_a": {
+          "rock": 5,
+          "paper": 0,
+          "scissors": 0
+        },
+        "player_b": {
+          "rock": 0,
+          "paper": 0,
+          "scissors": 3
+        }
+      },
+      "suite_winners": {
+        "rock": "player_a",
+        "paper": "tie",
+        "scissors": "player_b"
+      },
+      "tax_resolution": [],
+      "scoring": {
+        "player_a": {
+          "rock": 60,
+          "paper": 0,
+          "scissors": 0,
+          "static_cards": [
+            {
+              "card_id": "card_6002",
+              "static_value_before_doubling": 50,
+              "doubled": false,
+              "final_static_score": 500
+            }
+          ],
+          "tax_bonus": 0,
+          "suite_sweep_bonus": 0,
+          "round_total": 560
+        },
+        "player_b": {
+          "rock": 0,
+          "paper": 0,
+          "scissors": 45,
+          "static_cards": [],
+          "tax_bonus": 0,
+          "suite_sweep_bonus": 0,
+          "round_total": 45
+        }
+      },
+      "running_total": {
+        "player_a": 1135,
+        "player_b": 140
+      },
+      "suite_sweep": {
+        "player_a": false,
+        "player_b": false
+      },
+      "peek_resolutions": []
+    },
+    {
+      "hand": 4,
+      "last_round_conversions": [],
+      "duplicate_seal_conversions": [],
+      "suite_sweep_reward": [],
+      "played": {
+        "player_a": [
+          {
+            "id": "card_6014",
+            "archetype": "tactician",
+            "rock": 5,
+            "paper": 3,
+            "scissors": 1,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6015",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6027",
+            "archetype": "heavy_lean",
+            "rock": 7,
+            "paper": 2,
+            "scissors": 0,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6028",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6029",
+            "archetype": "nuke",
+            "rock": 9,
+            "paper": 0,
+            "scissors": 0,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          }
+        ],
+        "player_b": [
+          {
+            "id": "card_6018",
+            "archetype": "sentinel",
+            "rock": 3,
+            "paper": 3,
+            "scissors": 3,
+            "seal": "tax",
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6019",
+            "archetype": "heavy_lean",
+            "rock": 7,
+            "paper": 2,
+            "scissors": 0,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6030",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": "static",
+            "static_current_value": 30,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6031",
+            "archetype": "tactician",
+            "rock": 5,
+            "paper": 3,
+            "scissors": 1,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6032",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          }
+        ]
+      },
+      "held": {
+        "player_a": [
+          {
+            "id": "card_6021",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6022",
+            "archetype": "tactician",
+            "rock": 5,
+            "paper": 3,
+            "scissors": 1,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          }
+        ],
+        "player_b": [
+          {
+            "id": "card_6024",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": "peek",
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6025",
+            "archetype": "heavy_lean",
+            "rock": 7,
+            "paper": 2,
+            "scissors": 0,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          }
+        ]
+      },
+      "swap_resolution": [],
+      "raw_totals": {
+        "player_a": {
+          "rock": 29,
+          "paper": 11,
+          "scissors": 5
+        },
+        "player_b": {
+          "rock": 23,
+          "paper": 14,
+          "scissors": 8
+        }
+      },
+      "resistance_effects": [],
+      "surviving_totals": {
+        "player_a": {
+          "rock": 6,
+          "paper": 0,
+          "scissors": 0
+        },
+        "player_b": {
+          "rock": 0,
+          "paper": 3,
+          "scissors": 0
+        }
+      },
+      "suite_winners": {
+        "rock": "player_a",
+        "paper": "player_b",
+        "scissors": "tie"
+      },
+      "tax_resolution": [
+        {
+          "card_id": "card_6018",
+          "suite": "rock",
+          "tiered_score_before_tax": 75,
+          "base_rate_score": 60,
+          "tier_premium_stripped": 15,
+          "player_a_rock_reduced_to": 60,
+          "tax_bonus_to_player_b": 15
+        },
+        {
+          "card_id": "card_6018",
+          "suite": "paper",
+          "tiered_score_before_tax": 45,
+          "base_rate_score": 30,
+          "tier_premium_stripped": 15,
+          "player_a_paper_reduced_to": 30,
+          "tax_bonus_to_player_b": 15
+        },
+        {
+          "card_id": "card_6018",
+          "suite": "scissors",
+          "tiered_score_before_tax": 0,
+          "base_rate_score": 0,
+          "tier_premium_stripped": 0,
+          "player_a_scissors_reduced_to": 0,
+          "tax_bonus_to_player_b": 0
+        }
+      ],
+      "scoring": {
+        "player_a": {
+          "rock": 60,
+          "paper": 30,
+          "scissors": 0,
+          "static_cards": [],
+          "tax_bonus": 0,
+          "suite_sweep_bonus": 0,
+          "round_total": 90
+        },
+        "player_b": {
+          "rock": 0,
+          "paper": 45,
+          "scissors": 0,
+          "static_cards": [
+            {
+              "card_id": "card_6030",
+              "static_value_before_doubling": 30,
+              "doubled": false,
+              "final_static_score": 300
+            }
+          ],
+          "tax_bonus": 30,
+          "suite_sweep_bonus": 0,
+          "round_total": 375
+        }
+      },
+      "running_total": {
+        "player_a": 1225,
+        "player_b": 515
+      },
+      "suite_sweep": {
+        "player_a": false,
+        "player_b": false
+      },
+      "peek_resolutions": []
+    },
+    {
+      "hand": 5,
+      "last_round_conversions": [],
+      "duplicate_seal_conversions": [],
+      "suite_sweep_reward": [],
+      "played": {
+        "player_a": [
+          {
+            "id": "card_6021",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6022",
+            "archetype": "tactician",
+            "rock": 5,
+            "paper": 3,
+            "scissors": 1,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6033",
+            "archetype": "heavy_lean",
+            "rock": 7,
+            "paper": 2,
+            "scissors": 0,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6034",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6035",
+            "archetype": "nuke",
+            "rock": 9,
+            "paper": 0,
+            "scissors": 0,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          }
+        ],
+        "player_b": [
+          {
+            "id": "card_6024",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": "peek",
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6025",
+            "archetype": "heavy_lean",
+            "rock": 7,
+            "paper": 2,
+            "scissors": 0,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6036",
+            "archetype": "tactician",
+            "rock": 5,
+            "paper": 3,
+            "scissors": 1,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6037",
+            "archetype": "scout",
+            "rock": 4,
+            "paper": 3,
+            "scissors": 2,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          },
+          {
+            "id": "card_6038",
+            "archetype": "nuke",
+            "rock": 9,
+            "paper": 0,
+            "scissors": 0,
+            "seal": null,
+            "static_current_value": null,
+            "wild_assignment": null
+          }
+        ]
+      },
+      "held": {
+        "player_a": [],
+        "player_b": []
+      },
+      "swap_resolution": [],
+      "raw_totals": {
+        "player_a": {
+          "rock": 29,
+          "paper": 11,
+          "scissors": 5
+        },
+        "player_b": {
+          "rock": 29,
+          "paper": 11,
+          "scissors": 5
+        }
+      },
+      "resistance_effects": [],
+      "surviving_totals": {
+        "player_a": {
+          "rock": 18,
+          "paper": 0,
+          "scissors": 0
+        },
+        "player_b": {
+          "rock": 18,
+          "paper": 0,
+          "scissors": 0
+        }
+      },
+      "suite_winners": {
+        "rock": "tie",
+        "paper": "tie",
+        "scissors": "tie"
+      },
+      "tax_resolution": [],
+      "scoring": {
+        "player_a": {
+          "rock": 0,
+          "paper": 0,
+          "scissors": 0,
+          "static_cards": [],
+          "tax_bonus": 0,
+          "suite_sweep_bonus": 0,
+          "round_total": 0
+        },
+        "player_b": {
+          "rock": 0,
+          "paper": 0,
+          "scissors": 0,
+          "static_cards": [],
+          "tax_bonus": 0,
+          "suite_sweep_bonus": 0,
+          "round_total": 0
+        }
+      },
+      "running_total": {
+        "player_a": 1225,
+        "player_b": 515
+      },
+      "suite_sweep": {
+        "player_a": false,
+        "player_b": false
+      },
+      "peek_resolutions": []
+    }
+  ],
+  "round_summary": {
+    "running_total": {
+      "player_a": 1225,
+      "player_b": 515
+    }
+  }
+}
