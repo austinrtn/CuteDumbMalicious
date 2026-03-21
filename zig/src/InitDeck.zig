@@ -18,7 +18,7 @@ pub fn main() !void {
     var suit_count: usize = 0;
     var num_count: usize = 1;
 
-    var deck: [52]Card = undefined;
+    var deck: [52]Card = .{Card{}} ** 52;
     for(&deck) |*card| {
         const suit:Suit = @enumFromInt(suit_count);
 

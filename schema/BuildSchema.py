@@ -8,7 +8,8 @@ def writeZig(data):
         for field_name, field_type in data["Card"].items():
             if field_name == "json_tags": continue 
             T = getZigType(field_type)
-            contents += f"\t{field_name}: {T},\n"
+            default = getZigDefault(field_type)
+            contents += f"\t{field_name}: {T}{default},\n"
 
         contents += "};\n\n"
         contents += "pub const Suit = enum {\n"
@@ -21,8 +22,13 @@ def writeZig(data):
 
 def getZigType(field_type):
     if field_type == "string": return "[]const u8"
-    elif field_type == "int": return "u32"
+    elif field_type == "int": return "i32"
     elif field_type == "suit": return "Suit"
+
+def getZigDefault(field_type):
+    if field_type == "string": return ' = ""'
+    elif field_type == "int": return " = 0"
+    elif field_type == "suit": return " = .HEARTS"
 
 def writeGo(data):
     with open(go_output, "w") as f:
