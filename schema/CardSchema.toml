@@ -1,15 +1,29 @@
+###########
+# CARD DATA  
+###########
 [Card]
 player = "string"
 seal = "seal"
-cute = "int"
-bad = "int"
-malicious = "int"
+
+[Card.primary]
+val = "int"
+suit = "suit"
+
+[Card.secondary]
+val = "int"
+suit = "suit"
+
+[Card.tertiary]
+val = "int"
+suit = "suit"
 
 [Card.json_tags]
 player = "player"
-suit = "suit"
 num = "num"
 
+#########
+# ENUMS
+#########
 [Seal]
 type = "enum"
 values = ["SWAP", "PEEK", "TAX", "WILD", "RESISTANCE", "STATIC", "NONE"]
@@ -17,3 +31,10 @@ values = ["SWAP", "PEEK", "TAX", "WILD", "RESISTANCE", "STATIC", "NONE"]
 [Suit]
 type = "enum"
 values = ["CUTE", "BAD", "MALICOUS"]
+
+############
+# Other DATA 
+############
+[CardCount]
+value = "150"
+type = "usize"

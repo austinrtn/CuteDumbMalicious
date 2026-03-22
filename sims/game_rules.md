@@ -15,13 +15,13 @@ A local multiplayer tactical card game for two players. Players build hands from
 
 ### Ratio Card Archetypes
 
-| Archetype | Copies | Permutations | Per Permutation |
-|---|---|---|---|
-| Sentinel 3:3:3 | 18 | 1 | 18 |
-| Scout 4:3:2 | 42 | 6 | 7 |
-| Tactician 5:3:1 | 48 | 6 | 8 |
-| Heavy Lean 7:2:0 | 30 | 6 | 5 |
-| Nuke 9:0:0 | 12 | 3 | 4 |
+| Archetype | Ratio | Copies | Permutations | Per Permutation |
+|---|---|---|---|---|
+| Sentinel 3:3:3 | 3 | 18 | 1 | 18 |
+| Scout 4:3:2 | 7 | 42 | 6 | 7 |
+| Tactician 5:3:1 | 8 | 48 | 6 | 8 |
+| Heavy Lean 7:2:0 | 5 | 30 | 6 | 5 |
+| Nuke 9:0:0 | 2 | 12 | 3 | 4 |
 
 ### Ratio Card Permutations
 

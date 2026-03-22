@@ -6,61 +6,101 @@ zig_output = script_dir / "../zig/src/Card.zig"
 go_output = script_dir / "../Card.go"
 schema_file = script_dir / "CardSchema.toml"
 
-def writeZig(data): 
-    with open(zig_output, "w") as f: 
-        # Generate Card struct 
-        contents = "pub const Card = struct {\n"
-        for field_name, field_type in data["Card"].items():
-            if field_name == "json_tags": continue 
+def writeZig(data):
+    #Generate Card struct
+    contents = ""
+
+    #Generate game data
+    card_count = data["CardCount"]
+    contents += f"pub const CARD_COUNT: {card_count['type']} = {card_count['value']};\n\n"
+
+    #Generate card struct
+    contents += "pub const Card = struct {\n"
+    for field_name, field_type in data["Card"].items():
+        #JSON tags do not get applied for Zig
+        if field_name == "json_tags": continue
+
+        #Nested structs
+        elif field_name == "primary" or field_name == "secondary" or field_name == "tertiary":
+            contents += f"\t{field_name}: struct {{\n"
+            for fn, ft in data["Card"][field_name].items():
+                T = getZigType(ft)
+                default = getZigDefault(ft)
+                contents += f"\t\t{fn}: {T}{default}, \n"
+            contents += f"\t}},\n"
+            continue
+
+        #Player and seal data
+        else:
             T = getZigType(field_type)
             default = getZigDefault(field_type)
             contents += f"\t{field_name}: {T}{default},\n"
 
-        contents += "};\n\n"
+    contents += "};\n\n"
 
-        # Generate Seal enum
-        contents += "pub const Suit = enum {\n"
-        for val in data["Suit"]["values"]:
-            contents += f"\t{val},\n"
-        contents += "};\n\n"
+    # Generate Suit enum
+    contents += "pub const Suit = enum {\n"
+    for val in data["Suit"]["values"]:
+        contents += f"\t{val},\n"
+    contents += "};\n\n"
 
-        # Generate Seal enum 
-        contents += "pub const Seal = enum {\n"
-        for val in data["Seal"]["values"]:
-            contents += f"\t{val},\n"
-        contents += "};\n\n"
-        
+    # Generate Seal enum
+    contents += "pub const Seal = enum {\n"
+    for val in data["Seal"]["values"]:
+        contents += f"\t{val},\n"
+    contents += "};\n\n"
+
+    with open(zig_output, "w") as f:
         f.write(contents)
 
 def getZigType(field_type):
     if field_type == "string": return "[]const u8"
     elif field_type == "int": return "i32"
     elif field_type == "seal": return "Seal"
+    elif field_type == "suit": return "Suit"
 
 def getZigDefault(field_type):
     if field_type == "string": return ' = ""'
     elif field_type == "int": return " = 0"
     elif field_type == "seal": return " = .NONE"
+    elif field_type == "suit": return " = undefined"
 
 def writeGo(data):
-    with open(go_output, "w") as f:
-        json_tags = data["Card"].get("json_tags", {})
-        contents = "package main\n\n"
-        contents += "type Seal string\n\n"
-        contents += "type Card struct {\n"
+    json_tags = data["Card"].get("json_tags", {})
+    contents = "package main\n\n"
+    contents += "type Seal string\n\n"
+    contents += "type Suit string\n\n"
+    contents += "type Card struct {\n"
 
-        for field_name, field_type in data["Card"].items():
-            if field_name == "json_tags": continue
+    for field_name, field_type in data["Card"].items():
+        if field_name == "json_tags": continue
+
+        elif field_name == "primary" or field_name == "secondary" or field_name == "tertiary":
+            go_name = field_name.capitalize()
+            tag = json_tags.get(field_name, field_name)
+            contents += f'\t{go_name} struct {{\n'
+            for fn, ft in data["Card"][field_name].items():
+                T = getGoType(ft)
+                contents += f'\t\t{fn.capitalize()} {T} `json:"{fn}"`\n'
+            contents += f'\t}} `json:"{tag}"`\n'
+
+        else:
             T = getGoType(field_type)
             go_name = field_name.capitalize()
             tag = json_tags.get(field_name, field_name)
             contents += f'\t{go_name} {T} `json:"{tag}"`\n'
 
-        contents += "}\n\n"
-        contents += "const (\n"
-        for val in data["Seal"]["values"]:
-            contents += f'\t{val.capitalize()} Seal = "{val}"\n'
-        contents += ")\n"
+    contents += "}\n\n"
+    contents += "const (\n"
+    for val in data["Seal"]["values"]:
+        contents += f'\t{val.capitalize()} Seal = "{val}"\n'
+    contents += ")\n\n"
+    contents += "const (\n"
+    for val in data["Suit"]["values"]:
+        contents += f'\t{val.capitalize()} Suit = "{val}"\n'
+    contents += ")\n"
+
+    with open(go_output, "w") as f:
         f.write(contents)
 
 
@@ -68,6 +108,7 @@ def getGoType(field_type):
     if field_type == "string": return "string"
     elif field_type == "int": return "int"
     elif field_type == "seal": return "Seal"
+    elif field_type == "suit": return "Suit"
  
 
 if __name__ == "__main__": 

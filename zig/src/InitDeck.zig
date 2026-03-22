@@ -2,6 +2,15 @@ const std = @import("std");
 const CardData = @import("Card.zig");
 const Card = CardData.Card;
 const Seal = CardData.Seal;
+const Suit = CardData.Suit;
+
+const Distribution = struct {
+    sentinel: usize = 3,
+    scout: usize = 7,
+    tactical: usize = 8, 
+    bruiser: usize = 5,    
+    juggernaut: usize = 2,
+};
 
 pub fn main() !void {
     var buf: [4096]u8 = undefined;
