@@ -1,7 +1,9 @@
 [Card]
 player = "string"
 seal = "seal"
-num = "int"
+cute = "int"
+bad = "int"
+malicious = "int"
 
 [Card.json_tags]
 player = "player"
@@ -10,5 +12,8 @@ num = "num"
 
 [Seal]
 type = "enum"
-values = ["SWAP", "PEEK", "TAX", "WILD", "RESISTANCE", "STATIC"]
+values = ["SWAP", "PEEK", "TAX", "WILD", "RESISTANCE", "STATIC", "NONE"]
 
+[Suit]
+type = "enum"
+values = ["CUTE", "BAD", "MALICOUS"]

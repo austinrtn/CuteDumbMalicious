@@ -8,6 +8,7 @@ schema_file = script_dir / "CardSchema.toml"
 
 def writeZig(data): 
     with open(zig_output, "w") as f: 
+        # Generate Card struct 
         contents = "pub const Card = struct {\n"
         for field_name, field_type in data["Card"].items():
             if field_name == "json_tags": continue 
@@ -16,12 +17,19 @@ def writeZig(data):
             contents += f"\t{field_name}: {T}{default},\n"
 
         contents += "};\n\n"
-        contents += "pub const Seal = enum {\n"
 
+        # Generate Seal enum
+        contents += "pub const Suit = enum {\n"
+        for val in data["Suit"]["values"]:
+            contents += f"\t{val},\n"
+        contents += "};\n\n"
+
+        # Generate Seal enum 
+        contents += "pub const Seal = enum {\n"
         for val in data["Seal"]["values"]:
             contents += f"\t{val},\n"
-        
         contents += "};\n\n"
+        
         f.write(contents)
 
 def getZigType(field_type):
@@ -32,7 +40,7 @@ def getZigType(field_type):
 def getZigDefault(field_type):
     if field_type == "string": return ' = ""'
     elif field_type == "int": return " = 0"
-    elif field_type == "seal": return " = .HEARTS"
+    elif field_type == "seal": return " = .NONE"
 
 def writeGo(data):
     with open(go_output, "w") as f:

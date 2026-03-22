@@ -1,7 +1,9 @@
 pub const Card = struct {
 	player: []const u8 = "",
 	seal: Seal = .HEARTS,
-	num: i32 = 0,
+	cute: i32 = 0,
+	bad: i32 = 0,
+	malicious: i32 = 0,
 };
 
 pub const Seal = enum {
@@ -11,5 +13,6 @@ pub const Seal = enum {
 	WILD,
 	RESISTANCE,
 	STATIC,
+	NONE,
 };
 

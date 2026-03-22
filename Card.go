@@ -5,7 +5,9 @@ type Seal string
 type Card struct {
 	Player string `json:"player"`
 	Seal Seal `json:"seal"`
-	Num int `json:"num"`
+	Cute int `json:"cute"`
+	Bad int `json:"bad"`
+	Malicious int `json:"malicious"`
 }
 
 const (
@@ -15,4 +17,5 @@ const (
 	Wild Seal = "WILD"
 	Resistance Seal = "RESISTANCE"
 	Static Seal = "STATIC"
+	None Seal = "NONE"
 )
