@@ -4,6 +4,7 @@
 [Card]
 player = "string"
 seal = "seal"
+is_sentinel = "bool"
 
 [Card.primary]
 val = "int"

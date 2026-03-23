@@ -56,20 +56,20 @@ def writeZig(data):
 def getZigType(field_type):
     if field_type == "string": return "[]const u8"
     elif field_type == "int": return "i32"
+    elif field_type == "bool": return "bool"
     elif field_type == "seal": return "Seal"
     elif field_type == "suit": return "Suit"
 
 def getZigDefault(field_type):
     if field_type == "string": return ' = ""'
     elif field_type == "int": return " = 0"
+    elif field_type == "bool": return " = false"
     elif field_type == "seal": return " = .NONE"
     elif field_type == "suit": return " = undefined"
 
 def writeGo(data):
     json_tags = data["Card"].get("json_tags", {})
     contents = "package main\n\n"
-    contents += "type Seal string\n\n"
-    contents += "type Suit string\n\n"
     contents += "type Card struct {\n"
 
     for field_name, field_type in data["Card"].items():
@@ -91,10 +91,12 @@ def writeGo(data):
             contents += f'\t{go_name} {T} `json:"{tag}"`\n'
 
     contents += "}\n\n"
+    contents += "type Seal string\n\n"
     contents += "const (\n"
     for val in data["Seal"]["values"]:
         contents += f'\t{val.capitalize()} Seal = "{val}"\n'
     contents += ")\n\n"
+    contents += "type Suit string\n\n"
     contents += "const (\n"
     for val in data["Suit"]["values"]:
         contents += f'\t{val.capitalize()} Suit = "{val}"\n'
@@ -107,6 +109,7 @@ def writeGo(data):
 def getGoType(field_type):
     if field_type == "string": return "string"
     elif field_type == "int": return "int"
+    elif field_type == "bool": return "bool"
     elif field_type == "seal": return "Seal"
     elif field_type == "suit": return "Suit"
  

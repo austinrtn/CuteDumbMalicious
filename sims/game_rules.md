@@ -15,7 +15,7 @@ A local multiplayer tactical card game for two players. Players build hands from
 
 ### Ratio Card Archetypes
 
-| Archetype | Ratio | Copies | Permutations | Per Permutation |
+| Archetype | Dist | Copies | Permutations | Per Permutation |
 |---|---|---|---|---|
 | Sentinel 3:3:3 | 3 | 18 | 1 | 18 |
 | Scout 4:3:2 | 7 | 42 | 6 | 7 |
@@ -77,8 +77,8 @@ Each card rolls independently against every seal's probability during deck initi
 | Resistance | 4 percent | ~6 |
 | Swap | 4 percent | ~6 |
 | Wild | 4 percent | ~6 |
-| Peek | 2 percent | ~3 |
-| Tax | 2 percent | ~3 |
+| Peek | 4 percent | ~6 |
+| Tax | 4 percent | ~6 |
 
 Roughly one fifth of the deck will carry a seal. Unsealed cards are standard ratio cards with no bonus effect.
 
