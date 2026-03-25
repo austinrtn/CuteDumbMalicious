@@ -27,7 +27,7 @@ def writeZig(data):
                 T = getZigType(ft)
                 default = getZigDefault(ft)
                 contents += f"\t\t{fn}: {T}{default}, \n"
-            contents += f"\t}},\n"
+            contents += f"\t}} = .{{}},\n"
             continue
 
         #Player and seal data
@@ -42,6 +42,19 @@ def writeZig(data):
     contents += "pub const Suit = enum {\n"
     for val in data["Suit"]["values"]:
         contents += f"\t{val},\n"
+    contents += "};\n\n"
+
+    # Generate SubmitHand struct
+    contents += "pub const SubmitHand = struct {\n"
+    for field_name, field_type in data["SubmitHand"].items():
+        if isinstance(field_type, dict) and field_type.get("type") == "array":
+            elem_type = getZigType(field_type["element"])
+            size = field_type["size"]
+            contents += f"\t{field_name}: [{size}]{elem_type} = [_]{elem_type}{{.{{}}}} ** {size},\n"
+        else:
+            T = getZigType(field_type)
+            default = getZigDefault(field_type)
+            contents += f"\t{field_name}: {T}{default},\n"
     contents += "};\n\n"
 
     # Generate Seal enum
@@ -59,6 +72,7 @@ def getZigType(field_type):
     elif field_type == "bool": return "bool"
     elif field_type == "seal": return "Seal"
     elif field_type == "suit": return "Suit"
+    elif field_type == "Card": return "Card"
 
 def getZigDefault(field_type):
     if field_type == "string": return ' = ""'
@@ -66,6 +80,7 @@ def getZigDefault(field_type):
     elif field_type == "bool": return " = false"
     elif field_type == "seal": return " = .NONE"
     elif field_type == "suit": return " = undefined"
+    elif field_type == "Card": return " = .{}"
 
 def writeGo(data):
     json_tags = data["Card"].get("json_tags", {})
@@ -91,6 +106,21 @@ def writeGo(data):
             contents += f'\t{go_name} {T} `json:"{tag}"`\n'
 
     contents += "}\n\n"
+
+    # Generate SubmitHand struct
+    contents += "type SubmitHand struct {\n"
+    for field_name, field_type in data["SubmitHand"].items():
+        if isinstance(field_type, dict) and field_type.get("type") == "array":
+            elem_type = getGoType(field_type["element"])
+            size = field_type["size"]
+            go_name = field_name.capitalize()
+            contents += f'\t{go_name} [{size}]{elem_type} `json:"{field_name}"`\n'
+        else:
+            T = getGoType(field_type)
+            go_name = field_name.capitalize()
+            contents += f'\t{go_name} {T} `json:"{field_name}"`\n'
+    contents += "}\n\n"
+
     contents += "type Seal string\n\n"
     contents += "const (\n"
     for val in data["Seal"]["values"]:
@@ -112,7 +142,8 @@ def getGoType(field_type):
     elif field_type == "bool": return "bool"
     elif field_type == "seal": return "Seal"
     elif field_type == "suit": return "Suit"
- 
+    elif field_type == "Card": return "Card"
+
 
 if __name__ == "__main__": 
     with open(schema_file, "rb") as f:

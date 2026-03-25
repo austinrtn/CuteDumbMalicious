@@ -1,0 +1,182 @@
+[
+  {
+    "player": "player1",
+    "cards": [
+      {
+        "player": "player1",
+        "seal": "NONE",
+        "is_sentinel": false,
+        "primary": {
+          "val": 5,
+          "suit": "DUMB"
+        },
+        "secondary": {
+          "val": 3,
+          "suit": "MALICOUS"
+        },
+        "tertiary": {
+          "val": 1,
+          "suit": "CUTE"
+        }
+      },
+      {
+        "player": "player1",
+        "seal": "NONE",
+        "is_sentinel": false,
+        "primary": {
+          "val": 7,
+          "suit": "DUMB"
+        },
+        "secondary": {
+          "val": 2,
+          "suit": "CUTE"
+        },
+        "tertiary": {
+          "val": 0,
+          "suit": "MALICOUS"
+        }
+      },
+      {
+        "player": "player1",
+        "seal": "SWAP",
+        "is_sentinel": false,
+        "primary": {
+          "val": 7,
+          "suit": "MALICOUS"
+        },
+        "secondary": {
+          "val": 2,
+          "suit": "DUMB"
+        },
+        "tertiary": {
+          "val": 0,
+          "suit": "CUTE"
+        }
+      },
+      {
+        "player": "player1",
+        "seal": "NONE",
+        "is_sentinel": false,
+        "primary": {
+          "val": 7,
+          "suit": "DUMB"
+        },
+        "secondary": {
+          "val": 2,
+          "suit": "CUTE"
+        },
+        "tertiary": {
+          "val": 0,
+          "suit": "MALICOUS"
+        }
+      },
+      {
+        "player": "player1",
+        "seal": "NONE",
+        "is_sentinel": false,
+        "primary": {
+          "val": 7,
+          "suit": "MALICOUS"
+        },
+        "secondary": {
+          "val": 2,
+          "suit": "DUMB"
+        },
+        "tertiary": {
+          "val": 0,
+          "suit": "CUTE"
+        }
+      }
+    ]
+  },
+  {
+    "player": "player2",
+    "cards": [
+      {
+        "player": "player2",
+        "seal": "NONE",
+        "is_sentinel": false,
+        "primary": {
+          "val": 9,
+          "suit": "DUMB"
+        },
+        "secondary": {
+          "val": 0,
+          "suit": "MALICOUS"
+        },
+        "tertiary": {
+          "val": 0,
+          "suit": "CUTE"
+        }
+      },
+      {
+        "player": "player2",
+        "seal": "NONE",
+        "is_sentinel": false,
+        "primary": {
+          "val": 9,
+          "suit": "CUTE"
+        },
+        "secondary": {
+          "val": 0,
+          "suit": "DUMB"
+        },
+        "tertiary": {
+          "val": 0,
+          "suit": "MALICOUS"
+        }
+      },
+      {
+        "player": "player2",
+        "seal": "NONE",
+        "is_sentinel": false,
+        "primary": {
+          "val": 4,
+          "suit": "MALICOUS"
+        },
+        "secondary": {
+          "val": 3,
+          "suit": "CUTE"
+        },
+        "tertiary": {
+          "val": 2,
+          "suit": "DUMB"
+        }
+      },
+      {
+        "player": "player2",
+        "seal": "NONE",
+        "is_sentinel": false,
+        "primary": {
+          "val": 9,
+          "suit": "MALICOUS"
+        },
+        "secondary": {
+          "val": 0,
+          "suit": "CUTE"
+        },
+        "tertiary": {
+          "val": 0,
+          "suit": "DUMB"
+        }
+      },
+      {
+        "player": "player2",
+        "seal": "RESISTANCE",
+        "is_sentinel": false,
+        "primary": {
+          "val": 7,
+          "suit": "MALICOUS"
+        },
+        "secondary": {
+          "val": 2,
+          "suit": "DUMB"
+        },
+        "tertiary": {
+          "val": 0,
+          "suit": "CUTE"
+        }
+      }
+    ]
+  }
+]

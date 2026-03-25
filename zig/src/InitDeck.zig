@@ -1,21 +1,11 @@
 const std = @import("std");
-const CardData = @import("Card.zig");
-const CARD_COUNT = CardData.CARD_COUNT;
-const Card = CardData.Card;
-const Seal = CardData.Seal;
-const Suit = CardData.Suit;
+const lib = @import("CuteDumbMalicious");
+const CARD_COUNT = lib.CARD_COUNT;
+const Card = lib.Card;
+const Seal = lib.Seal;
+const Suit = lib.Suit;
 
-const Distribution = struct {
-    mult: u32 = 6,
-
-    sentinel: usize = 3,
-    scout: usize = 7,
-    tactical: usize = 8, 
-    bruiser: usize = 5,    
-    juggernaut: usize = 2,
-};
-
-const SealData = struct{ seal: Seal, chance: u32 = 6, count: usize = 0, };
+const SealData = struct{ seal: Seal, chance: u32 = 5, count: usize = 0, };
 var Seals = [_]SealData{
     SealData{ .seal = .STATIC },
     SealData{ .seal = .WILD },
@@ -25,28 +15,61 @@ var Seals = [_]SealData{
     SealData{ .seal = .SWAP },
 };
 
-const Sentinel = Ratio{ .primary = 3, .secondary = 3, .tertiary = 3, .perms = 1}; 
-const Scout = Ratio{ .primary = 4, .secondary = 3, .tertiary = 2,}; 
-const Tactician = Ratio{ .primary = 5, .secondary = 3, .tertiary = 1, }; 
-const Bruiser = Ratio{ .primary = 7, .secondary = 2, .tertiary = 0, }; 
-const Juggernaut = Ratio{ .primary = 9, .secondary = 0, .tertiary = 0, .perms = 3}; 
+const CardType = struct { primary: i32, secondary: i32, tertiary: i32, perms: usize = 6, scale: u32 = 6, weight: usize };
+const Sentinel = CardType{ .primary = 3, .secondary = 3, .tertiary = 3, .perms = 1, .weight = 3 };
+const Scout = CardType{ .primary = 4, .secondary = 3, .tertiary = 2, .weight = 7 };
+const Tactician = CardType{ .primary = 5, .secondary = 3, .tertiary = 1, .weight = 8 };
+const Bruiser = CardType{ .primary = 7, .secondary = 2, .tertiary = 0, .weight = 5 };
+const Juggernaut = CardType{ .primary = 9, .secondary = 0, .tertiary = 0, .perms = 3, .weight = 2 };
+const card_types = [_]CardType{Sentinel, Scout, Tactician, Bruiser, Juggernaut};
 
-const ratios = [_]Ratio{Sentinel, Scout, Tactician, Bruiser, Juggernaut};
 pub fn main() !void {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
+    defer _ = gpa.deinit();
+
+    // To write to stdout (which will be GO backend)
     var buf: [4096]u8 = undefined;
     var stdout = std.fs.File.stdout().writer(&buf);
     const writer = &stdout.interface;
 
-    var prng: std.Random.DefaultPrng = .init(blk: {
-        var seed: u64 = undefined;
-        try std.posix.getrandom(std.mem.asBytes(&seed));
-        break :blk seed;
-    });
+    var prng = try lib.getPrng();
     const rand = prng.random();
 
-    var deck: [CARD_COUNT]Card = .{ Card{} } ** CARD_COUNT;
+    // Arraylist where cards are kept 
+    var deck = std.ArrayList(Card){};
+    defer deck.deinit(allocator);
+    try deck.ensureTotalCapacity(allocator, CARD_COUNT);
 
-    for(&deck) |*card| {
+    // Generate the cards by each card type, 
+    // cycling suites to generate all possible permutations of each card type
+    for(card_types) |card_t| {
+        var primary: Suit = .CUTE;
+        var secondary: Suit = .DUMB;
+        var tertiary: Suit = .MALICOUS;
+        const is_sentinel = (card_t.primary == card_t.secondary and card_t.secondary == card_t.tertiary);
+
+        for(0..card_t.perms) |i| {
+            var card: Card = .{.is_sentinel = is_sentinel};
+            card.primary = .{ .suit = primary, .val = card_t.primary }; 
+            card.secondary = .{ .suit = secondary, .val = card_t.secondary }; 
+            card.tertiary = .{ .suit = tertiary, .val = card_t.tertiary }; 
+
+            try deck.appendNTimes(allocator, card, (card_t.weight * card_t.scale) / card_t.perms);
+
+            if(i == 2) {
+                primary = .CUTE;
+                secondary = .MALICOUS;
+                tertiary = .DUMB;
+            } else {
+                primary = getNextSuit(primary);
+                secondary = getNextSuit(secondary);
+                tertiary = getNextSuit(tertiary);
+            }
+        } 
+    } 
+
+    for(deck.items) |*card| {
         const seal: Seal = blk: {
             var result: ?*SealData = null;   
 
@@ -65,25 +88,29 @@ pub fn main() !void {
                 won.count += 1;
                 break :blk won.seal;
             }
-            else break :blk .NONE;
+            break :blk .NONE;
         };
         card.seal = seal;       
-
     }
 
-    for(0..deck.len) |i| {
+    for(0..deck.items.len) |i| {
         const k = rand.intRangeAtMost(u8, 0, 51);
-        const current_card = deck[i];
-        const random_card = deck[k];
+        const current_card = deck.items[i];
+        const random_card = deck.items[k];
 
-        deck[i] = random_card; 
-        deck[k] = current_card;
+        deck.items[i] = random_card; 
+        deck.items[k] = current_card;
     }
 
-    try std.json.fmt(deck, .{.whitespace = .indent_2}).format(writer);
+    try std.json.fmt(deck.items, .{.whitespace = .indent_2}).format(writer);
     try writer.flush();
 }
 
-const Ratio = struct { primary: i32, secondary: i32, tertiary: i32, perms: usize = 6};
-
-
+fn getNextSuit(suit: Suit) Suit {
+    switch(suit) {
+        .CUTE => return .DUMB,
+        .DUMB => return .MALICOUS,
+        .MALICOUS => return .CUTE,
+    }
+    unreachable;
+}

@@ -1,12 +1,9 @@
 package main
 
-type Seal string
-
-type Suit string
-
 type Card struct {
 	Player string `json:"player"`
 	Seal Seal `json:"seal"`
+	Is_sentinel bool `json:"is_sentinel"`
 	Primary struct {
 		Val int `json:"val"`
 		Suit Suit `json:"suit"`
@@ -21,6 +18,13 @@ type Card struct {
 	} `json:"tertiary"`
 }
 
+type SubmitHand struct {
+	Player string `json:"player"`
+	Cards [5]Card `json:"cards"`
+}
+
+type Seal string
+
 const (
 	Swap Seal = "SWAP"
 	Peek Seal = "PEEK"
@@ -31,8 +35,10 @@ const (
 	None Seal = "NONE"
 )
 
+type Suit string
+
 const (
 	Cute Suit = "CUTE"
-	Bad Suit = "BAD"
+	Dumb Suit = "DUMB"
 	Malicous Suit = "MALICOUS"
 )

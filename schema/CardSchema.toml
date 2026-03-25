@@ -31,11 +31,20 @@ values = ["SWAP", "PEEK", "TAX", "WILD", "RESISTANCE", "STATIC", "NONE"]
 
 [Suit]
 type = "enum"
-values = ["CUTE", "BAD", "MALICOUS"]
+values = ["CUTE", "DUMB", "MALICOUS"]
+
+######################
+#SUBMIT HAND STRUCT 
+######################
+[SubmitHand]
+player = "string"
+cards = {type = "array", element = "Card", size = 5}
 
 ############
 # Other DATA 
 ############
 [CardCount]
-value = "150"
+value = "258"
 type = "usize"
+
+

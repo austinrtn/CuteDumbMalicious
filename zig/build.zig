@@ -29,15 +29,40 @@ pub fn build(b: *std.Build) void {
 
     b.installArtifact(init_deck);
 
-    const run_step = b.step("run", "Run the app");
+    const init_deck_step = b.step("init_deck", "Generate and shuffle the deck");
 
-    const run_cmd = b.addRunArtifact(init_deck);
-    run_step.dependOn(&run_cmd.step);
+    const init_deck_cmd = b.addRunArtifact(init_deck);
+    init_deck_step.dependOn(&init_deck_cmd.step);
 
-    run_cmd.step.dependOn(b.getInstallStep());
+    init_deck_cmd.step.dependOn(b.getInstallStep());
 
     if (b.args) |args| {
-        run_cmd.addArgs(args);
+       init_deck_cmd.addArgs(args);
+    }
+
+    const calculate = b.addExecutable(.{
+        .name = "Calculate",
+        .root_module = b.createModule(.{
+            .root_source_file = b.path("src/Calculate.zig"),
+            .target = target,
+            .optimize = optimize,
+            .imports = &.{
+                .{ .name = "CuteDumbMalicious", .module = mod },
+            },
+        }),
+    });
+
+    b.installArtifact(calculate);
+
+    const calc_step = b.step("calc", "Take both hands that the player submitted and calcuate the points.");
+
+    const calc_cmd = b.addRunArtifact(calculate);
+    calc_step.dependOn(&calc_cmd.step);
+
+    calc_cmd.step.dependOn(b.getInstallStep());
+
+    if (b.args) |args| {
+        calc_cmd.addArgs(args);
     }
 
     const mod_tests = b.addTest(.{
