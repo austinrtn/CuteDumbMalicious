@@ -14,3 +14,19 @@ pub const NewEvent = struct {
 	suit: Suit = undefined,
 };
 
+pub const ResultPlayer = struct {
+	player: []const u8 = "",
+	cute: i32 = 0,
+	dumb: i32 = 0,
+	malicous: i32 = 0,
+	static_pts: i32 = 0,
+	suit_wins: i32 = 0,
+	total: i32 = 0,
+};
+
+pub const SubmittedHandsResult = struct {
+	p1: ResultPlayer = .{},
+	p2: ResultPlayer = .{},
+	events: []const NewEvent = &.{},
+};
+

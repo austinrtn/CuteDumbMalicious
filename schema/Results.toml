@@ -1,0 +1,30 @@
+###########
+# ENUMS
+###########
+[Event]
+type = "enum"
+values = ["res", "tax", "static_conversion"]
+
+###########
+# STRUCTS
+###########
+[NewEvent]
+event = "event"
+source = "string"
+target = "string"
+points = "int"
+suit = "suit"
+
+[ResultPlayer]
+player = "string"
+cute = "int"
+dumb = "int"
+malicous = "int"
+static_pts = "int"
+suit_wins = "int"
+total = "int"
+
+[SubmittedHandsResult]
+p1 = "ResultPlayer"
+p2 = "ResultPlayer"
+events = {type = "slice", element = "NewEvent"}

@@ -3,8 +3,10 @@ from pathlib import Path
 
 script_dir = Path(__file__).resolve().parent
 zig_output = script_dir / "../zig/src/Card.zig"
+zig_results_output = script_dir / "../zig/src/Event.zig"
 go_output = script_dir / "../Card.go"
 schema_file = script_dir / "CardSchema.toml"
+results_schema_file = script_dir / "Results.toml"
 
 def writeZig(data):
     #Generate Card struct
@@ -72,7 +74,10 @@ def getZigType(field_type):
     elif field_type == "bool": return "bool"
     elif field_type == "seal": return "Seal"
     elif field_type == "suit": return "Suit"
+    elif field_type == "event": return "Event"
     elif field_type == "Card": return "Card"
+    elif field_type == "ResultPlayer": return "ResultPlayer"
+    elif field_type == "NewEvent": return "NewEvent"
 
 def getZigDefault(field_type):
     if field_type == "string": return ' = ""'
@@ -80,7 +85,10 @@ def getZigDefault(field_type):
     elif field_type == "bool": return " = false"
     elif field_type == "seal": return " = .NONE"
     elif field_type == "suit": return " = undefined"
+    elif field_type == "event": return " = undefined"
     elif field_type == "Card": return " = .{}"
+    elif field_type == "ResultPlayer": return " = .{}"
+    elif field_type == "NewEvent": return " = .{}"
 
 def writeGo(data):
     json_tags = data["Card"].get("json_tags", {})
@@ -142,14 +150,84 @@ def getGoType(field_type):
     elif field_type == "bool": return "bool"
     elif field_type == "seal": return "Seal"
     elif field_type == "suit": return "Suit"
+    elif field_type == "event": return "Event"
     elif field_type == "Card": return "Card"
+    elif field_type == "ResultPlayer": return "ResultPlayer"
+    elif field_type == "NewEvent": return "NewEvent"
 
 
-if __name__ == "__main__": 
+def writeZigResults(data):
+    contents = 'const Suit = @import("Card.zig").Suit;\n\n'
+
+    # Generate enums
+    for name, section in data.items():
+        if isinstance(section, dict) and section.get("type") == "enum":
+            contents += f"pub const {name} = enum {{\n"
+            for val in section["values"]:
+                contents += f"\t{val},\n"
+            contents += "};\n\n"
+
+    # Generate structs (skip enums)
+    for name, section in data.items():
+        if not isinstance(section, dict) or section.get("type") == "enum":
+            continue
+        contents += f"pub const {name} = struct {{\n"
+        for field_name, field_type in section.items():
+            if isinstance(field_type, dict) and field_type.get("type") == "slice":
+                elem_type = getZigType(field_type["element"])
+                contents += f"\t{field_name}: []const {elem_type} = &.{{}},\n"
+            else:
+                T = getZigType(field_type)
+                default = getZigDefault(field_type)
+                contents += f"\t{field_name}: {T}{default},\n"
+        contents += "};\n\n"
+
+    with open(zig_results_output, "w") as f:
+        f.write(contents)
+
+def writeGoResults(data):
+    contents = ""
+
+    # Generate enums (prefix constants with type name to avoid collisions)
+    for name, section in data.items():
+        if isinstance(section, dict) and section.get("type") == "enum":
+            contents += f"type {name} string\n\n"
+            contents += "const (\n"
+            for val in section["values"]:
+                contents += f'\t{name}{val.capitalize()} {name} = "{val}"\n'
+            contents += ")\n\n"
+
+    # Generate structs (skip enums)
+    for name, section in data.items():
+        if not isinstance(section, dict) or section.get("type") == "enum":
+            continue
+        contents += f"type {name} struct {{\n"
+        for field_name, field_type in section.items():
+            go_name = field_name.capitalize()
+            if isinstance(field_type, dict) and field_type.get("type") == "slice":
+                elem_type = getGoType(field_type["element"])
+                contents += f'\t{go_name} []{elem_type} `json:"{field_name}"`\n'
+            else:
+                T = getGoType(field_type)
+                contents += f'\t{go_name} {T} `json:"{field_name}"`\n'
+        contents += "}\n\n"
+
+    return contents
+
+if __name__ == "__main__":
     with open(schema_file, "rb") as f:
         data = tomllib.load(f)
         writeZig(data)
         writeGo(data)
+
+    with open(results_schema_file, "rb") as f:
+        results_data = tomllib.load(f)
+        writeZigResults(results_data)
+        go_results = writeGoResults(results_data)
+
+    # Append results structs to Go output
+    with open(go_output, "a") as f:
+        f.write("\n" + go_results)
 
     print("Files generated!")
 

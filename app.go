@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"sync"
 )
@@ -42,11 +43,6 @@ type Client struct {
 	Ch chan string
 }
 
-type Deck struct {
-	Cards [52]Card
-	CardsDealt int
-	CardsRemaining int
-}
 
 type AppState struct {
 	Clients map[chan string] Client
@@ -63,7 +59,7 @@ type Game struct {
 
 	State BroadcastMsg
 	Hands int
-	Deck [52]Card
+	Deck []Card
 	DeckIndex int
 }
 
@@ -72,23 +68,10 @@ type Player struct {
 	Name string
 	InGame bool
 
-	Hand [7]Card
+	Hand []Card
 	Points int
 	HasSubmitted bool
-	SubmittedCard Card
-}
-
-type RoundResult struct {
-	Player1Name   string `json:"player1Name"`
-	Player1Card   Card   `json:"player1Card"`
-	Player1Points int    `json:"player1Points"`
-
-	Player2Name   string `json:"player2Name"`
-	Player2Card   Card   `json:"player2Card"`
-	Player2Points int    `json:"player2Points"`
-
-	WinnerName string `json:"winnerName"`
-	WinnerCard Card   `json:"winnerCard"`
+	SubmittedHand SubmitHand
 }
 
 type NewGameRequest struct {
@@ -113,7 +96,7 @@ func main() {
 	http.HandleFunc("/getConnectedPlayers", func(res http.ResponseWriter, req *http.Request) { getConnectedPlayers(appState, res, req)})
 	http.HandleFunc("/gameExists", func(res http.ResponseWriter, req *http.Request) { gameExists(appState, res, req)})
 	http.HandleFunc("/play", func(res http.ResponseWriter, req *http.Request) { play(appState, res, req)})
-	http.HandleFunc("/submitCard", func(res http.ResponseWriter, req *http.Request) { submitCard(appState, res, req)})
+	http.HandleFunc("/submitHand", func(res http.ResponseWriter, req *http.Request) { submitHand(appState, res, req)})
 
 	log.Printf("Listening to %s\n\n", PORT)
 	err := http.ListenAndServe(PORT, nil); if err != nil {
@@ -199,6 +182,8 @@ func play(appState *AppState, res http.ResponseWriter, req *http.Request) {
 }
 
 func manageGameState(appState *AppState, res http.ResponseWriter, req *http.Request) {
+	_ = res
+	_ = req
 	game := &appState.Game
 	player1 := &game.Player1
 	player2 := &game.Player2
@@ -210,28 +195,15 @@ func manageGameState(appState *AppState, res http.ResponseWriter, req *http.Requ
 		game.State = Dealing
 		broadcast(appState, User, Dealing)
 
-		var player *Player
-		player = player1
-		currentPlayerFlag := 0
+		player1.Hand = make([]Card, 7)
+		player2.Hand = make([]Card, 7)
 
-		i := 0
-		for {
-			if i == 7 { break }
-
-			d_idx := game.DeckIndex
-			player.Hand[i] = game.Deck[d_idx] 
-			game.DeckIndex += 1
-
-			if currentPlayerFlag == 0 {
-				player = player2
-				currentPlayerFlag = 1
-			} else {
-				player = player1
-				currentPlayerFlag = 0
-				i++
-			}
+		for i := 0; i < 7; i++ {
+			player1.Hand[i] = game.Deck[game.DeckIndex]
+			game.DeckIndex++
+			player2.Hand[i] = game.Deck[game.DeckIndex]
+			game.DeckIndex++
 		}
-
 
 		player1Hand, err := json.Marshal(player1.Hand)
 		if err != nil {
@@ -249,31 +221,11 @@ func manageGameState(appState *AppState, res http.ResponseWriter, req *http.Requ
 	}
 
 	if game.State == Dealing && player1.HasSubmitted && player2.HasSubmitted {
-		var winnerName string
-		var winnerCard Card
-
-		if player1.SubmittedCard.Num > player2.SubmittedCard.Num {
-			winnerName = player1.Name
-			winnerCard = player1.SubmittedCard
-			player1.Points++
-		} else if player2.SubmittedCard.Num > player1.SubmittedCard.Num {
-			winnerName = player2.Name
-			winnerCard = player2.SubmittedCard
-			player2.Points++
-		} else {
-			winnerName = "DRAW"
-			winnerCard = player1.SubmittedCard
-		}
-
-		result := RoundResult{
-			WinnerName:    winnerName,
-			WinnerCard:    winnerCard,
-			Player1Name:   player1.Name,
-			Player1Card:   player1.SubmittedCard,
-			Player1Points: player1.Points,
-			Player2Name:   player2.Name,
-			Player2Card:   player2.SubmittedCard,
-			Player2Points: player2.Points,
+		hands := []SubmitHand{player1.SubmittedHand, player2.SubmittedHand}
+		result, err := calculateResult(hands)
+		if err != nil {
+			log.Printf("Calculate error: %v", err)
+			return
 		}
 
 		resultJSON, err := json.Marshal(result)
@@ -286,13 +238,16 @@ func manageGameState(appState *AppState, res http.ResponseWriter, req *http.Requ
 		player1.Client.Ch <- msg
 		player2.Client.Ch <- msg
 
+		player1.Points += result.P1.Total
+		player2.Points += result.P2.Total
+
 		game.State = ShowingResults
 
 		// Reset for next round
 		player1.HasSubmitted = false
 		player2.HasSubmitted = false
-		player1.SubmittedCard = Card{}
-		player2.SubmittedCard = Card{}
+		player1.SubmittedHand = SubmitHand{}
+		player2.SubmittedHand = SubmitHand{}
 	}
 
 	if game.State == ShowingResults {
@@ -308,12 +263,43 @@ func initDeck(game *Game) {
 		log.Printf("InitDeck error %v", err)
 		return
 	}
-	err = json.Unmarshal(out, &game.Deck)
-	
+
+	var deck []Card
+	err = json.Unmarshal(out, &deck)
 	if err != nil {
 		log.Printf("InitDeck parse error %v", err)
 		return
 	}
+	game.Deck = deck
+}
+
+func calculateResult(hands []SubmitHand) (SubmittedHandsResult, error) {
+	handsJSON, err := json.Marshal(hands)
+	if err != nil {
+		return SubmittedHandsResult{}, fmt.Errorf("marshal hands: %w", err)
+	}
+
+	tmpFile, err := os.CreateTemp("", "hands-*.json")
+	if err != nil {
+		return SubmittedHandsResult{}, fmt.Errorf("create temp file: %w", err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	if _, err := tmpFile.Write(handsJSON); err != nil {
+		return SubmittedHandsResult{}, fmt.Errorf("write temp file: %w", err)
+	}
+	tmpFile.Close()
+
+	out, err := exec.Command("./Calculate", tmpFile.Name()).Output()
+	if err != nil {
+		return SubmittedHandsResult{}, fmt.Errorf("Calculate exec: %w", err)
+	}
+
+	var result SubmittedHandsResult
+	if err := json.Unmarshal(out, &result); err != nil {
+		return SubmittedHandsResult{}, fmt.Errorf("parse result: %w", err)
+	}
+	return result, nil
 }
 
 /// adds server message to client chanel that JS frontend listens for
@@ -373,18 +359,18 @@ func gameExists(appState *AppState, res http.ResponseWriter, req *http.Request) 
 	res.WriteHeader(http.StatusOK)
 }
 
-func submitCard(appState *AppState, res http.ResponseWriter, req *http.Request) {
-	var card Card
+func submitHand(appState *AppState, res http.ResponseWriter, req *http.Request) {
+	var hand SubmitHand
 	var player *Player
 	game := &appState.Game
 
-	json.NewDecoder(req.Body).Decode(&card)
-	
-	fmt.Printf("%s | %d | %s\n", card.Player, card.Num, card.Suit)
+	json.NewDecoder(req.Body).Decode(&hand)
 
-	if card.Player == game.Player1.Name {
+	fmt.Printf("%s submitted hand\n", hand.Player)
+
+	if hand.Player == game.Player1.Name {
 		player = &game.Player1
-	} else if card.Player == game.Player2.Name {
+	} else if hand.Player == game.Player2.Name {
 		player = &game.Player2
 	} else {
 		http.Error(res, "Couldn't find player name", http.StatusInternalServerError)
@@ -392,7 +378,7 @@ func submitCard(appState *AppState, res http.ResponseWriter, req *http.Request) 
 	}
 
 	player.HasSubmitted = true
-	player.SubmittedCard = card
+	player.SubmittedHand = hand
 	manageGameState(appState, res, req)
 }
 

@@ -9,6 +9,8 @@ pub const Seal = CardLib.Seal;
 pub const SubmitHand = CardLib.SubmitHand;
 pub const NewEvent = EventLib.NewEvent;
 pub const Event = EventLib.Event;
+pub const ResultPlayer = EventLib.ResultPlayer;
+pub const SubmittedHandsResult = EventLib.SubmittedHandsResult;
 
 pub fn getPrng() !std.Random.DefaultPrng {
     var seed: u64 = undefined;

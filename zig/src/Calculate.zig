@@ -48,7 +48,7 @@ pub fn main() !void {
     _ = args.next();
 
     const first_arg = args.next() orelse @panic("Missing argument\n");
-    const debug = std.mem.eql(u8, first_arg, "--debug");
+    const debug = std.mem.eql(u8, first_arg, "debug");
     const file_path = if (debug) args.next() orelse @panic("Missing file argument\n") else first_arg;
 
     const contents = try std.fs.cwd().readFileAlloc(allocator, file_path, 1024 * 1024);
@@ -99,23 +99,7 @@ pub fn main() !void {
     if (debug) printPoints("Final", p1_points, p2_points);
 
     // Output match results and events as JSON to stdout
-    const ResultPlayer = struct {
-        player: []const u8,
-        cute: i32,
-        dumb: i32,
-        malicous: i32,
-        static_pts: i32,
-        suit_wins: i32,
-        total: i32,
-    };
-
-    const Result = struct {
-        p1: ResultPlayer,
-        p2: ResultPlayer,
-        events: []const lib.NewEvent,
-    };
-
-    const result = Result{
+    const result = lib.SubmittedHandsResult {
         .p1 = .{
             .player = p1.player,
             .cute = p1_points.cute,
