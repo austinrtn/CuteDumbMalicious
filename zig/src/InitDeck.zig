@@ -69,7 +69,10 @@ pub fn main() !void {
         } 
     } 
 
+    var id: usize = 0;
     for(deck.items) |*card| {
+        card.id = id;
+        defer id += 1;
         const seal: Seal = blk: {
             var result: ?*SealData = null;   
 

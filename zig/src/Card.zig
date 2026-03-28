@@ -5,6 +5,7 @@ pub const Card = struct {
 	seal: Seal = .NONE,
 	is_sentinel: bool = false,
 	held: bool = false,
+	id: usize = 0,
 	primary: struct {
 		val: i32 = 0, 
 		suit: Suit = undefined, 
