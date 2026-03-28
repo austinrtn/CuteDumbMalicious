@@ -24,6 +24,9 @@ static_pts = "int"
 suit_wins = "int"
 total = "int"
 
+played_peek = "bool"
+played_swap = "bool"
+
 [SubmittedHandsResult]
 p1 = "ResultPlayer"
 p2 = "ResultPlayer"

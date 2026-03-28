@@ -22,6 +22,8 @@ pub const ResultPlayer = struct {
 	static_pts: i32 = 0,
 	suit_wins: i32 = 0,
 	total: i32 = 0,
+	played_peek: bool = false,
+	played_swap: bool = false,
 };
 
 pub const SubmittedHandsResult = struct {

@@ -24,6 +24,8 @@ type ResultPlayer struct {
 	Static_pts int `json:"static_pts"`
 	Suit_wins int `json:"suit_wins"`
 	Total int `json:"total"`
+	Played_peek bool `json:"played_peek"`
+	Played_swap bool `json:"played_swap"`
 }
 
 type SubmittedHandsResult struct {

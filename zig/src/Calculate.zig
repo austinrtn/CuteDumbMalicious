@@ -11,7 +11,7 @@ const SuitFlags = struct {
     mal: bool = false,
 };
 
-const Points = struct{
+const Points = struct {
     cute: i32 = 0,
     dumb: i32 = 0,
     malicous: i32 = 0,
@@ -29,6 +29,8 @@ const Points = struct{
     static: i32 = 0,
     suit_wins: i32 = 0,
     total: i32 = 0,
+    played_peek: bool = false,
+    played_swap: bool = false,
 
     player: []const u8 = "",
     events: *std.ArrayList(lib.NewEvent) = undefined,
@@ -111,6 +113,8 @@ pub fn main() !void {
             .malicous = p1_points.malicous,
             .static_pts = p1_points.static,
             .suit_wins = p1_points.suit_wins,
+            .played_peek = p1_points.played_peek,
+            .played_swap = p1_points.played_swap,
             .total = p1_points.total,
         },
         .p2 = .{
@@ -120,6 +124,8 @@ pub fn main() !void {
             .malicous = p2_points.malicous,
             .static_pts = p2_points.static,
             .suit_wins = p2_points.suit_wins,
+            .played_peek = p2_points.played_peek,
+            .played_swap = p2_points.played_swap,
             .total = p2_points.total,
         },
         .events = events.items,
@@ -301,8 +307,18 @@ fn applyTaxSeal(card: *Card, points: *Points) void {
 
 fn getSubmittedPoints(cards: []Card, points: *Points) void {
     for(cards) |*card| {
-        if(card.seal == .RESISTANCE) applyResSeal(card, points)
-        else if(card.seal == .TAX) applyTaxSeal(card, points);
+        switch(card.seal) {
+            .RESISTANCE => applyResSeal(card, points),
+            .TAX => applyTaxSeal(card, points),
+            .PEEK => points.played_peek = true,
+            .SWAP => {
+                if(points.played_swap) {
+                    card.seal = .STATIC;
+                }
+                else points.played_swap = true;
+            },
+            else => {},
+        }
         points.cute += getPointsFromCard(card.*, .CUTE);
         points.dumb += getPointsFromCard(card.*, .DUMB);
         points.malicous += getPointsFromCard(card.*, .MALICOUS);
