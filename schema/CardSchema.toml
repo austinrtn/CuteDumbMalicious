@@ -6,6 +6,7 @@ player = "string"
 seal = "seal"
 is_sentinel = "bool"
 held = "bool"
+id = "usize"
 
 [Card.primary]
 val = "int"

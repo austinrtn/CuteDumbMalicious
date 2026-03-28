@@ -1,3 +1,4 @@
-module Cute_Bad_Dumb
+module CuteDumbMalicous
+
 
 go 1.25.0

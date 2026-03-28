@@ -1,13 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"os/exec"
-	"bytes"
 	"os"
+	"os/exec"
+	"slices"
 )
 
 type NewGameRequest struct {
@@ -93,6 +94,14 @@ func manageGameState(appState *AppState, res http.ResponseWriter, req *http.Requ
 	if game.State == Dealing {
 		deal(appState)
 		game.State = CardSelection
+	}
+
+	if player1.PlayedSwap {
+		triggerSwap(game, player1)
+	}
+
+	if player2.PlayedSwap {
+		triggerSwap(game, player2)
 	}
 
 	if player1.HasSubmitted && player2.HasSubmitted {
@@ -192,6 +201,7 @@ func deal(appState *AppState) {
 
 	p1Held := 0
 	p2Held := 0
+	
 	for i := 0; i < 7; i++ {
 		if player1.Hand[i].Held { p1Held++ }
 		if player2.Hand[i].Held { p2Held++ }
@@ -199,6 +209,7 @@ func deal(appState *AppState) {
 
 	p1Dealt := 0
 	p2Dealt := 0
+
 	for i := 0; i < 7; i++ {
 		if !player1.Hand[i].Held && p1Held+p1Dealt < p1Target {
 			player1.Hand[i] = game.Deck[game.DeckIndex]
@@ -257,6 +268,33 @@ func calculateResult(hands []SubmitHand) (SubmittedHandsResult, error) {
 		return SubmittedHandsResult{}, fmt.Errorf("parse result: %w", err)
 	}
 	return result, nil
+}
+
+func getTopCards(game Game, viewCardCount int) []Card {
+	var cards []Card
+
+	for i := 0; i < viewCardCount; i++ {
+		index := game.DeckIndex + i
+		card := game.Deck[index]
+		cards = append(cards, card)
+	}
+
+	return cards 
+}
+
+func putCardsAtBottomOfDeck(game *Game, cards []int) {
+	var cardIndices []int 
+	slices.SortFunc(cardIndices, func(a, b int) int {return b - a})
+	for cardIndex := range cardIndices {
+		card := game.Deck[cardIndex] 
+
+		game.Deck = slices.Delete(game.Deck, cardIndex, cardIndex + 1)
+		game.Deck = append(game.Deck, card)
+	}
+}
+
+func triggerSwap(game *Game, player *Player) {
+	//cardsOptions,  := getTopCards(*game, 4)
 }
 
 func logGameState(prev, next BroadcastMsg, p1, p2 *Player) {

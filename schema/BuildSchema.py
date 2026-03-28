@@ -72,6 +72,7 @@ def writeZig(data):
 def getZigType(field_type):
     if field_type == "string": return "[]const u8"
     elif field_type == "int": return "i32"
+    elif field_type == "usize": return "usize"
     elif field_type == "bool": return "bool"
     elif field_type == "seal": return "Seal"
     elif field_type == "suit": return "Suit"
@@ -83,6 +84,7 @@ def getZigType(field_type):
 def getZigDefault(field_type):
     if field_type == "string": return ' = ""'
     elif field_type == "int": return " = 0"
+    elif field_type == "usize": return " = 0"
     elif field_type == "bool": return " = false"
     elif field_type == "seal": return " = .NONE"
     elif field_type == "suit": return " = undefined"
