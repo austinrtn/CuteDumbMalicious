@@ -4,6 +4,7 @@ type Card struct {
 	Player string `json:"player"`
 	Seal Seal `json:"seal"`
 	Is_sentinel bool `json:"is_sentinel"`
+	Held bool `json:"held"`
 	Primary struct {
 		Val int `json:"val"`
 		Suit Suit `json:"suit"`
@@ -42,36 +43,3 @@ const (
 	Dumb Suit = "DUMB"
 	Malicous Suit = "MALICOUS"
 )
-
-type Event string
-
-const (
-	EventRes Event = "res"
-	EventTax Event = "tax"
-	EventStatic_conversion Event = "static_conversion"
-)
-
-type NewEvent struct {
-	Event Event `json:"event"`
-	Source string `json:"source"`
-	Target string `json:"target"`
-	Points int `json:"points"`
-	Suit Suit `json:"suit"`
-}
-
-type ResultPlayer struct {
-	Player string `json:"player"`
-	Cute int `json:"cute"`
-	Dumb int `json:"dumb"`
-	Malicous int `json:"malicous"`
-	Static_pts int `json:"static_pts"`
-	Suit_wins int `json:"suit_wins"`
-	Total int `json:"total"`
-}
-
-type SubmittedHandsResult struct {
-	P1 ResultPlayer `json:"p1"`
-	P2 ResultPlayer `json:"p2"`
-	Events []NewEvent `json:"events"`
-}
-

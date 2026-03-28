@@ -1,0 +1,11 @@
+[Event]
+type = "enum"
+values = ["res", "tax", "static_conversion"]
+
+[NewEvent]
+type = "struct"
+event = "Event"
+source = "string"
+target = "string"
+points = "int"
+suit = "suit"

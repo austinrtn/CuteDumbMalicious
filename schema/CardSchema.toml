@@ -5,6 +5,7 @@
 player = "string"
 seal = "seal"
 is_sentinel = "bool"
+held = "bool"
 
 [Card.primary]
 val = "int"

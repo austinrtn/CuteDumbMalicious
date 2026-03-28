@@ -7,12 +7,13 @@ let selected_cards = []; // cards chosen for submission (up to 5)
 let cardRects = []; // {x, y, w, h, index} for hit detection
 let submitBtnRect = null; // {x, y, w, h} for submit button hit detection
 let flyingCards = []; // [{card, x, y, w, h, scale, vy}] for animation
+let selected_card_indices = [];
 let animationId = null;
 let isPortrait = false;
 let playerName = "";
 let roundResult = null;
-let resultTimer = null;
 let scores = null; // {player1Name, player1Points, player2Name, player2Points}
+let roundInfo = null; // {current, total}
 
 function resizeCanvas() {
     const dpr = window.devicePixelRatio || 1;
@@ -34,7 +35,11 @@ function resizeCanvas() {
     canvas.style.left = "";
 
     if (canvas.style.display !== "none") {
-        drawGame();
+        if (typeof displayActive !== "undefined" && displayActive) {
+            drawDisplay();
+        } else {
+            drawGame();
+        }
     }
 }
 
@@ -54,6 +59,7 @@ function drawBackground(w, h) {
 }
 
 function drawGame() {
+    if (typeof displayActive !== "undefined" && displayActive) return;
     const dpr = window.devicePixelRatio || 1;
     const screenW = window.innerWidth;
     const screenH = window.innerHeight;
@@ -88,7 +94,7 @@ function drawGame() {
     } else if(gamePhase === "cards_dealt" || gamePhase === "hand_submitted") {
         drawHand(w, h);
         if (scores) drawScores(w, h);
-        drawSuitTotals(w);
+        drawSuitTotals(w, h);
     } else if (gamePhase === "showing_results") {
         drawHand(w, h);
         if (scores) drawScores(w, h);
@@ -125,18 +131,27 @@ function drawScores(w, h) {
     ctx.fillText(scores.player2Name + ": " + scores.player2Points, w - 20, 35);
 }
 
-function drawSuitTotals(w) {
+function drawSuitTotals(w, h) {
     const totals = { CUTE: 0, DUMB: 0, MALICOUS: 0 };
     for (const card of selected_cards) {
         totals[card.primary.suit]   += card.primary.val;
         totals[card.secondary.suit] += card.secondary.val;
         totals[card.tertiary.suit]  += card.tertiary.val;
     }
-    ctx.font = "bold 24px 'Black Han Sans', sans-serif";
+
+    if (roundInfo) {
+        ctx.fillStyle = "#aaa";
+        ctx.font = "bold 18px 'Black Han Sans', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Round " + roundInfo.current + "/" + roundInfo.total, w / 2, 35);
+    }
+
+    const midY = (50 + (h - 140)) / 2;
+    ctx.font = "bold 48px 'Black Han Sans', sans-serif";
     ctx.textAlign = "center";
     ["CUTE", "DUMB", "MALICOUS"].forEach((suit, i) => {
         ctx.fillStyle = suitColor(suit);
-        ctx.fillText(String(totals[suit]), w / 2 + (i - 1) * 60, 35);
+        ctx.fillText(String(totals[suit]), w / 2 + (i - 1) * 100, midY);
     });
 }
 
@@ -327,6 +342,15 @@ function getCanvasXY(e) {
 
 function onCanvasClick(e) {
     e.preventDefault();
+
+    if (gamePhase === "showing_results") {
+        roundResult = null;
+        gamePhase = "waiting";
+        drawGame();
+        signalReady();
+        return;
+    }
+
     if (gamePhase !== "cards_dealt") return;
 
     const pos = getCanvasXY(e);
@@ -362,6 +386,7 @@ function onCanvasClick(e) {
 function launchSelectedCards() {
     // Build flying cards from their current drawn positions
     flyingCards = [];
+    selected_card_indices = [];
     for (let i = cardRects.length - 1; i >= 0; i--) {
         const r = cardRects[i];
         const card = player_hand[r.index];
@@ -375,6 +400,7 @@ function launchSelectedCards() {
                 scale: r.scale,
                 vy: -12 - Math.random() * 6,
             });
+            selected_card_indices.push(r.index);
         }
     }
 
@@ -414,6 +440,20 @@ canvas.addEventListener("touchstart", function(e) {
 function onServerEvent(e) {
 		const msg = e.data;
 
+		if(msg.startsWith('round:')) {
+				const parts = msg.slice(6).split('/');
+				roundInfo = { current: parseInt(parts[0]), total: parseInt(parts[1]) };
+				if (!scores) {
+						scores = {
+								player1Name: parts[2],
+								player1Points: 0,
+								player2Name: parts[3],
+								player2Points: 0,
+						};
+				}
+				return;
+		}
+
 		if(msg.startsWith('hand:'))	{
 				player_hand = JSON.parse(msg.slice(5));
 				selected_cards = [];
@@ -433,11 +473,6 @@ function onServerEvent(e) {
 				gamePhase = "showing_results";
 				drawGame();
 
-				resultTimer = setTimeout(() => {
-						roundResult = null;
-						gamePhase = "cards_dealt";
-						drawGame();
-				}, 3000);
 				return
 		}
 
@@ -450,6 +485,7 @@ function onServerEvent(e) {
 }
 
 function startGame(name, sse) {
+    displayActive = false;
     playerName = name;
     gamePhase = "waiting";
     document.getElementById("menu-root").style.display = "none";
@@ -466,10 +502,20 @@ function startGame(name, sse) {
     resizeCanvas();
 }
 
+function signalReady() {
+    fetch("/readyForNextRound", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ player: playerName }),
+    }).then(res => {
+        console.log("Ready signal sent: " + res.status);
+    });
+}
+
 function submitHand() {
 		const hand = {
 				player: playerName,
-				cards: selected_cards,
+				card_indices: selected_card_indices,
 		};
 		const options = {
 				method: "POST",

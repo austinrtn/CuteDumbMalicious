@@ -4,6 +4,7 @@ pub const Card = struct {
 	player: []const u8 = "",
 	seal: Seal = .NONE,
 	is_sentinel: bool = false,
+	held: bool = false,
 	primary: struct {
 		val: i32 = 0, 
 		suit: Suit = undefined, 

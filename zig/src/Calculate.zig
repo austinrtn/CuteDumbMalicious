@@ -47,11 +47,15 @@ pub fn main() !void {
     defer args.deinit();
     _ = args.next();
 
-    const first_arg = args.next() orelse @panic("Missing argument\n");
-    const debug = std.mem.eql(u8, first_arg, "debug");
-    const file_path = if (debug) args.next() orelse @panic("Missing file argument\n") else first_arg;
+    const first_arg = args.next();
+    const debug = if (first_arg) |arg| std.mem.eql(u8, arg, "debug") else false;
 
-    const contents = try std.fs.cwd().readFileAlloc(allocator, file_path, 1024 * 1024);
+    const contents = if (debug) blk: {
+        const file_path = args.next() orelse @panic("Missing file argument\n");
+        break :blk try std.fs.cwd().readFileAlloc(allocator, file_path, 1024 * 1024);
+    } else blk: {
+        break :blk try std.fs.File.stdin().readToEndAlloc(allocator, 1024 * 1024);
+    };
     defer allocator.free(contents);
 
     const parsed = try std.json.parseFromSlice([]SubmitHand, allocator, contents, .{});
@@ -196,8 +200,6 @@ fn applyInvestmentMult(points: *Points) void {
                     mult += increment;
                 }
             }
-            taxed_points *= 10;
-            new_points *= 10;
             pts.* =  @as(i32, @intFromFloat(new_points));
             return @intFromFloat(taxed_points);
         }

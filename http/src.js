@@ -156,7 +156,11 @@ function enterGame(playerName) {
 		activeSSE.close();
 	}
 	activeSSE = new EventSource(`/play?name=${playerName}`);
-	startGame(playerName, activeSSE);
+	if (playerName === "display") {
+		startDisplay(activeSSE);
+	} else {
+		startGame(playerName, activeSSE);
+	}
 }
 
 function connectMenu(players) {

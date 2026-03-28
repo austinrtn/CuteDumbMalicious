@@ -16,11 +16,11 @@ var Seals = [_]SealData{
 };
 
 const CardType = struct { primary: i32, secondary: i32, tertiary: i32, perms: usize = 6, scale: u32 = 6, weight: usize };
-const Sentinel = CardType{ .primary = 3, .secondary = 3, .tertiary = 3, .perms = 1, .weight = 3 };
-const Scout = CardType{ .primary = 4, .secondary = 3, .tertiary = 2, .weight = 7 };
-const Tactician = CardType{ .primary = 5, .secondary = 3, .tertiary = 1, .weight = 8 };
-const Bruiser = CardType{ .primary = 7, .secondary = 2, .tertiary = 0, .weight = 5 };
-const Juggernaut = CardType{ .primary = 9, .secondary = 0, .tertiary = 0, .perms = 3, .weight = 2 };
+const Sentinel = CardType{ .primary = 30, .secondary = 30, .tertiary = 30, .perms = 1, .weight = 3 };
+const Scout = CardType{ .primary = 40, .secondary = 30, .tertiary = 20, .weight = 7 };
+const Tactician = CardType{ .primary = 50, .secondary = 30, .tertiary = 10, .weight = 8 };
+const Bruiser = CardType{ .primary = 70, .secondary = 20, .tertiary = 0, .weight = 5 };
+const Juggernaut = CardType{ .primary = 90, .secondary = 0, .tertiary = 0, .perms = 3, .weight = 2 };
 const card_types = [_]CardType{Sentinel, Scout, Tactician, Bruiser, Juggernaut};
 
 pub fn main() !void {

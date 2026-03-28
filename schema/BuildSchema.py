@@ -5,6 +5,7 @@ script_dir = Path(__file__).resolve().parent
 zig_output = script_dir / "../zig/src/Card.zig"
 zig_results_output = script_dir / "../zig/src/Event.zig"
 go_output = script_dir / "../Card.go"
+go_results_output = script_dir / "../Event.go"
 schema_file = script_dir / "CardSchema.toml"
 results_schema_file = script_dir / "Results.toml"
 
@@ -186,7 +187,7 @@ def writeZigResults(data):
         f.write(contents)
 
 def writeGoResults(data):
-    contents = ""
+    contents = "package main\n\n"
 
     # Generate enums (prefix constants with type name to avoid collisions)
     for name, section in data.items():
@@ -212,7 +213,8 @@ def writeGoResults(data):
                 contents += f'\t{go_name} {T} `json:"{field_name}"`\n'
         contents += "}\n\n"
 
-    return contents
+    with open(go_results_output, "w") as f:
+        f.write(contents)
 
 if __name__ == "__main__":
     with open(schema_file, "rb") as f:
@@ -223,11 +225,7 @@ if __name__ == "__main__":
     with open(results_schema_file, "rb") as f:
         results_data = tomllib.load(f)
         writeZigResults(results_data)
-        go_results = writeGoResults(results_data)
-
-    # Append results structs to Go output
-    with open(go_output, "a") as f:
-        f.write("\n" + go_results)
+        writeGoResults(results_data)
 
     print("Files generated!")
 
