@@ -59,6 +59,11 @@ type Player struct {
 	PlayedSwap bool
 }
 
+type PeekData struct {
+	Suit Suit `json:"suit"`
+	Val int `json:"val"`
+}
+
 // GAME STATES
 const (
 	NotStarted BroadcastMsg = "not_started"
@@ -105,12 +110,12 @@ func manageGameState(appState *AppState, res http.ResponseWriter, req *http.Requ
 		}
 
 		if player1.PlayedPeek {
-			peek(game, player1)
+			peek(game, player1, player2)
 			player1.PlayedPeek = false
 		}
 
 		if player2.PlayedPeek {
-			peek(game, player2)
+			peek(game, player2, player1)
 			player2.PlayedPeek = false
 		}
 
@@ -340,18 +345,41 @@ func sendSwap(game *Game, player *Player) {
 }
 
 func peek(game *Game, sourcePlayer *Player, targetPlayer *Player) {
-	var score int
+	var peekData PeekData
 	suitChoice := rand.IntN(3)
 
 	switch suitChoice {
 		case 0: 
-			// Cute
-			score = targetPlayer.Hand
+			peekData.Suit = Cute
 		case 1: 
-			suit = Dumb 
+			peekData.Suit = Dumb
 		case 2: 
-			suit = Malicous
+			peekData.Suit = Malicous 
 	}
+
+	for _, card := range targetPlayer.Hand {
+		peekData.Val += getSuitPointsFromCard(card, peekData.Suit)
+	}
+
+	result, err := json.Marshal(peekData)
+	if err != nil {
+		log.Printf("peek data marshal error: %v", err)
+		return
+	}
+
+	sourcePlayer.Client.Ch <- fmt.Sprintf("peek_data:%s", result)
+}
+
+func getSuitPointsFromCard(card Card, suit Suit) int {
+	if card.Primary.Suit == suit {
+		return card.Primary.Val
+	} else if card.Secondary.Suit == suit {
+		return card.Secondary.Val
+	} else if card.Tertiary.Suit == suit {
+		return card.Tertiary.Val
+	}	
+
+	panic("No suit found")
 }
 
 func logGameState(prev, next BroadcastMsg, p1, p2 *Player) {

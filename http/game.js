@@ -15,6 +15,9 @@ const G = {
     swapOptions: [],
     swapSelectedCard: null,
     isPortrait: false,
+    peekData: null,
+    peekSeen: false,
+    peekRevealFrame: 0,
 };
 
 const hitRects = {
@@ -22,6 +25,7 @@ const hitRects = {
     submit: null,
     swapCards: [],
     swapConfirm: null,
+    peekDismiss: null,
 };
 
 let animCards = [];
@@ -67,12 +71,16 @@ function resetRound() {
     G.roundResult = null;
     G.swapOptions = [];
     G.swapSelectedCard = null;
+    G.peekData = null;
+    G.peekSeen = false;
+    G.peekRevealFrame = 0;
     if (swapPendingTimer) { clearTimeout(swapPendingTimer); swapPendingTimer = null; }
     stopAnimation();
     hitRects.hand = [];
     hitRects.submit = null;
     hitRects.swapCards = [];
     hitRects.swapConfirm = null;
+    hitRects.peekDismiss = null;
 }
 
 // ── Animation System ──
@@ -89,6 +97,25 @@ function stopAnimation() {
 }
 
 function animationTick() {
+    if (G.phase === "peek_reveal") {
+        G.peekRevealFrame++;
+        drawGame();
+        if (G.peekRevealFrame >= 90) {
+            animationId = null;
+            G.peekSeen = true;
+            hitRects.peekDismiss = null;
+            if (G.swapOptions.length > 0) {
+                beginSwapAfterDelay();
+            } else {
+                G.phase = "cards_dealt";
+                drawGame();
+            }
+            return;
+        }
+        animationId = requestAnimationFrame(animationTick);
+        return;
+    }
+
     let allDone = true;
 
     for (const ac of animCards) {
@@ -238,21 +265,29 @@ function drawGame() {
         ctx.fillText("Waiting for other player...", w / 2, h / 2);
     } else if (G.phase === "connected") {
         ctx.fillText("Both players connected!", w / 2, h / 2);
+    } else if (G.phase === "peek_reveal") {
+        drawHand(w, h);
+        if (G.scores) drawScores(w, h);
+        drawPeekReveal(w, h);
     } else if (G.phase === "cards_dealt" || G.phase === "hand_submitted") {
         drawHand(w, h);
         if (G.scores) drawScores(w, h);
         drawSuitTotals(w, h);
+        if (G.peekData && G.peekSeen) drawPeekInfo(w, h);
     } else if (G.phase === "swap_pending") {
         drawHand(w, h);
         if (G.scores) drawScores(w, h);
+        if (G.peekData && G.peekSeen) drawPeekInfo(w, h);
     } else if (G.phase === "swap_selection" || G.phase === "swap_animating_out") {
         drawHand(w, h);
         if (G.scores) drawScores(w, h);
         drawSwapOptions(w, h);
+        if (G.peekData && G.peekSeen) drawPeekInfo(w, h);
     } else if (G.phase === "showing_results") {
         drawHand(w, h);
         if (G.scores) drawScores(w, h);
         drawResults(w, h);
+        if (G.peekData && G.peekSeen) drawPeekInfo(w, h);
     }
 }
 
@@ -307,6 +342,77 @@ function drawSuitTotals(w, h) {
         ctx.fillStyle = suitColor(suit);
         ctx.fillText(String(totals[suit]), w / 2 + (i - 1) * 100, midY);
     });
+}
+
+function drawPeekReveal(w, h) {
+    const FADE_START = 72;
+    const FADE_END   = 90;
+    const overallAlpha = G.peekRevealFrame >= FADE_START
+        ? 1 - (G.peekRevealFrame - FADE_START) / (FADE_END - FADE_START)
+        : 1;
+
+    ctx.save();
+    ctx.globalAlpha = overallAlpha;
+
+    // Semi-transparent backdrop
+    ctx.fillStyle = "rgba(0,0,0,0.65)";
+    ctx.fillRect(0, 0, w, h);
+
+    const cx = w / 2;
+    const cy = h / 2;
+
+    // Pulse the header for the first 45 frames, then stabilise
+    const pulse = G.peekRevealFrame < 45
+        ? Math.sin(G.peekRevealFrame * 0.22) * 0.35 + 0.65
+        : 1;
+
+    ctx.globalAlpha = overallAlpha * pulse;
+    ctx.font = "bold 52px 'Black Han Sans', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#f1c40f";
+    ctx.fillText("PEEK!", cx, cy - 60);
+
+    // Suit colour label + value
+    const suit  = G.peekData.suit;
+    const val   = G.peekData.val;
+    const color = suitColor(suit);
+
+    ctx.globalAlpha = overallAlpha;
+    ctx.font = "bold 28px 'Black Han Sans', sans-serif";
+    ctx.fillStyle = "#ddd";
+    ctx.fillText("Opponent's", cx, cy - 10);
+
+    ctx.fillStyle = color;
+    ctx.fillText(suitLabel(suit).toUpperCase() + " total:", cx, cy + 30);
+
+    ctx.font = "bold 52px 'Black Han Sans', sans-serif";
+    ctx.fillStyle = color;
+    ctx.fillText(String(val), cx, cy + 90);
+
+    ctx.restore();
+}
+
+function drawPeekInfo(w, h) {
+    const suit  = G.peekData.suit;
+    const val   = G.peekData.val;
+    const color = suitColor(suit);
+    const label = "\u{1F441} " + suitLabel(suit) + " " + val;
+
+    ctx.font = "bold 15px 'Black Han Sans', sans-serif";
+    ctx.textAlign = "center";
+
+    const textW = ctx.measureText(label).width + 18;
+    const boxH  = 22;
+    const bx    = (w - textW) / 2;
+    const by    = 50;
+
+    ctx.fillStyle = "rgba(0,0,0,0.45)";
+    ctx.beginPath();
+    ctx.roundRect(bx, by, textW, boxH, 5);
+    ctx.fill();
+
+    ctx.fillStyle = color;
+    ctx.fillText(label, w / 2, by + 15);
 }
 
 function drawCard(x, y, cardW, cardH, card, fontScale) {
@@ -735,9 +841,22 @@ function onServerEvent(e) {
 
         console.log("swap_options received, hand.length=" + G.hand.length + ", phase=" + G.phase);
 
-        if (G.hand.length >= 6) {
+        // If peek is about to fire (peek_data arrives after swap_options),
+        // defer swap until the player dismisses the peek overlay.
+        if (G.hand.length >= 6 && !(G.peekData && !G.peekSeen)) {
             beginSwapAfterDelay();
         }
+        return;
+    }
+
+    if (msg.startsWith('peek_data:')) {
+        G.peekData = JSON.parse(msg.slice(10));
+        G.peekSeen = false;
+        G.peekRevealFrame = 0;
+        // Cancel any swap timer that started before peek_data arrived
+        if (swapPendingTimer) { clearTimeout(swapPendingTimer); swapPendingTimer = null; }
+        G.phase = "peek_reveal";
+        startAnimation();
         return;
     }
 
