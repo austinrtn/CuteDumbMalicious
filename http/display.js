@@ -72,8 +72,8 @@ function onDisplayEvent(e) {
     if (msg.startsWith("scores:")) {
         const parts = msg.slice(7).split("/");
         dScores = {
-            p1Points: parseInt(parts[0]),
-            p2Points: parseInt(parts[1]),
+            p1Points: parseFloat(parts[0]),
+            p2Points: parseFloat(parts[1]),
         };
         drawDisplay();
         return;

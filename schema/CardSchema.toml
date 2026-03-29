@@ -29,7 +29,7 @@ num = "num"
 #########
 [Seal]
 type = "enum"
-values = ["SWAP", "PEEK", "TAX", "WILD", "RESISTANCE", "STATIC", "NONE"]
+values = ["SWAP", "PEEK", "TAX", "BOOSTER", "RESISTANCE", "STATIC", "NONE"]
 
 [Suit]
 type = "enum"

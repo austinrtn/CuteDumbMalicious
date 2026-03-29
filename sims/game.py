@@ -38,28 +38,28 @@ from typing import Optional
 
 OLLAMA_URL = "http://localhost:11434"
 MAX_RETRIES = 3
-STATIC_CAP = 50
-STATIC_START = 30
-STATIC_INCREMENT = 10
-SWEEP_BONUS_NORMAL = 30
-SWEEP_BONUS_FINAL = 70
+STATIC_CAP = 5
+STATIC_START = 3
+STATIC_INCREMENT = 1
+SWEEP_BONUS_NORMAL = 3
+SWEEP_BONUS_FINAL = 7
 
 
 # ─────────────────────────────────────────────
 # SCORING
 # ─────────────────────────────────────────────
 
-def tiered_score(n: int) -> int:
+def tiered_score(n: int) -> float:
     """Score surviving points using the tiered curve.
-    Groups of 3, per-point value increases by 5 each group starting at 10."""
+    Groups of 3, per-point value increases by 0.5 each group starting at 1."""
     if n <= 0:
         return 0
-    total = 0
+    total = 0.0
     group = 0
     remaining = n
     while remaining > 0:
         take = min(3, remaining)
-        per_point = 10 + group * 5
+        per_point = 1 + group * 0.5
         total += take * per_point
         remaining -= take
         group += 1
@@ -70,9 +70,9 @@ def tiered_score(n: int) -> int:
 # CARD AND DECK
 # ─────────────────────────────────────────────
 
-SEAL_TYPES = ["static", "resistance", "swap", "wild", "peek", "tax"]
+SEAL_TYPES = ["static", "resistance", "swap", "booster", "peek", "tax"]
 SEAL_PROBS = {"static": 0.04, "resistance": 0.04, "swap": 0.04,
-              "wild": 0.04, "peek": 0.02, "tax": 0.02}
+              "booster": 0.04, "peek": 0.02, "tax": 0.02}
 
 ARCHETYPES = [
     # (archetype_name, rock, paper, scissors)
@@ -113,15 +113,15 @@ class Card:
     scissors: int
     seal: Optional[str] = None
     static_current_value: Optional[int] = None
-    wild_assignment: Optional[dict] = None
+    booster_assignment: Optional[dict] = None
 
     def primary_suite(self) -> str:
         vals = {"rock": self.rock, "paper": self.paper, "scissors": self.scissors}
         return max(vals, key=vals.get)
 
     def effective_points(self) -> tuple:
-        if self.seal == "wild" and self.wild_assignment:
-            wa = self.wild_assignment
+        if self.seal == "booster" and self.booster_assignment:
+            wa = self.booster_assignment
             return wa["rock"], wa["paper"], wa["scissors"]
         return self.rock, self.paper, self.scissors
 
@@ -136,8 +136,8 @@ class Card:
         }
         if self.static_current_value is not None:
             d["static_current_value"] = self.static_current_value
-        if self.wild_assignment is not None:
-            d["wild_assignment"] = self.wild_assignment
+        if self.booster_assignment is not None:
+            d["booster_assignment"] = self.booster_assignment
         return d
 
 
@@ -236,15 +236,15 @@ def format_hand_for_llm(player: PlayerState, opponent: PlayerState,
             elif c.seal == "resistance":
                 suite = c.primary_suite() if c.archetype != "sentinel" else "ALL"
                 seal_info = f" RESIST({suite},halves incoming)"
-            elif c.seal == "wild":
-                seal_info = " WILD(reassign 9pts to any suites)"
+            elif c.seal == "booster":
+                seal_info = " BOOSTER(increases tier mult for primary suite)"
             elif c.seal == "tax":
                 suite = c.primary_suite() if c.archetype != "sentinel" else "ALL"
                 seal_info = f" TAX({suite},steals opponent tier bonus)"
             elif c.seal == "peek":
-                seal_info = " PEEK(spy next hand)" if not is_final else " STATIC(30pts bonus)"
+                seal_info = " PEEK(spy next hand)" if not is_final else " STATIC(3pts bonus)"
             elif c.seal == "swap":
-                seal_info = " SWAP(draw extra next)" if not is_final else " STATIC(30pts bonus)"
+                seal_info = " SWAP(draw extra next)" if not is_final else " STATIC(3pts bonus)"
         card_lines.append(f"{c.id}: R{c.rock} P{c.paper} S{c.scissors}{seal_info}")
 
     cards_str = "\n".join(card_lines)
@@ -316,15 +316,15 @@ def fallback_selection(hand: list[Card]) -> list[str]:
     return [c.id for c in selected]
 
 
-def get_wild_assignment(card: Card, played: list[Card], model: str) -> dict:
-    """Ask LLM how to assign Wild seal points. Falls back to random if needed."""
+def get_booster_assignment(card: Card, played: list[Card], model: str) -> dict:
+    """Ask LLM how to assign Booster seal points. Falls back to random if needed."""
     # Show what suites the other played cards contribute so model can make informed choice
     other = [c for c in played if c.id != card.id]
     r = sum(c.rock for c in other)
     p = sum(c.paper for c in other)
     s = sum(c.scissors for c in other)
     prompt = (
-        f'Your other cards total R{r} P{p} S{s}. Assign 9 wild points to boost suites. Total must equal 9.\n'
+        f'Your other cards total R{r} P{p} S{s}. Assign 9 booster points to boost suites. Total must equal 9.\n'
         f'Return ONLY JSON: {{"rock": 5, "paper": 2, "scissors": 2}}'
     )
 
@@ -452,7 +452,7 @@ def generate_sweep_reward_seal(seal_counts: dict) -> str:
 
 
 def apply_last_round_conversions(player: PlayerState) -> list[dict]:
-    """Convert Peek and Swap seals to Static(30) on final hand."""
+    """Convert Peek and Swap seals to Static(3) on final hand."""
     conversions = []
     for card in player.hand:
         if card.seal in ["peek", "swap"]:
@@ -470,8 +470,8 @@ def apply_last_round_conversions(player: PlayerState) -> list[dict]:
 
 
 def check_duplicate_seals(player: PlayerState) -> list[dict]:
-    """Convert duplicate seals to Static(30). Static and Wild are exempt."""
-    exempt = {"static", "wild"}
+    """Convert duplicate seals to Static(3). Static and Booster are exempt."""
+    exempt = {"static", "booster"}
     seal_map = {}
     for card in player.hand:
         if card.seal and card.seal not in exempt:
@@ -619,7 +619,7 @@ def compute_tax_resolution(played_a: list[Card], played_b: list[Card],
                 stripped = 0
             else:
                 tiered = tiered_score(surv_val)
-                base = surv_val * 10  # flat base rate
+                base = surv_val  # flat base rate
                 stripped = tiered - base
 
             resolutions.append({
@@ -842,10 +842,10 @@ def simulate_round(round_num: int, num_hands: int, model: str,
             played = [c for c in player.hand if c.id in valid_ids]
             held = [c for c in player.hand if c.id not in valid_ids]
 
-            # Handle Wild seal assignments
+            # Handle Booster seal assignments
             for card in played:
-                if card.seal == "wild" and card.wild_assignment is None:
-                    card.wild_assignment = get_wild_assignment(card, played, model)
+                if card.seal == "booster" and card.booster_assignment is None:
+                    card.booster_assignment = get_booster_assignment(card, played, model)
 
             # Track Peek seal
             for card in played:

@@ -12,18 +12,18 @@ type NewEvent struct {
 	Event Event `json:"event"`
 	Source string `json:"source"`
 	Target string `json:"target"`
-	Points int `json:"points"`
+	Points float64 `json:"points"`
 	Suit Suit `json:"suit"`
 }
 
 type ResultPlayer struct {
 	Player string `json:"player"`
-	Cute int `json:"cute"`
-	Dumb int `json:"dumb"`
-	Malicous int `json:"malicous"`
-	Static_pts int `json:"static_pts"`
+	Cute float64 `json:"cute"`
+	Dumb float64 `json:"dumb"`
+	Malicous float64 `json:"malicous"`
+	Static_pts float64 `json:"static_pts"`
 	Suit_wins int `json:"suit_wins"`
-	Total int `json:"total"`
+	Total float64 `json:"total"`
 	Played_peek bool `json:"played_peek"`
 	Played_swap bool `json:"played_swap"`
 }

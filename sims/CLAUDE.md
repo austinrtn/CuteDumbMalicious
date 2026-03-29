@@ -40,10 +40,10 @@ Agent reported surviving totals identical to raw totals for one player, meaning 
 Agent computed 20 minus 12 as 0 instead of 8. Remind the agent: "Surviving points = raw total minus opponent's counter-suite total, floored at zero. Show the arithmetic explicitly."
 
 **Tiered scoring applied at wrong value**
-Agent scored 17 surviving Rock as 170 (which is the score for 2 surviving points). 17 surviving should score 370 (group 5 starts at 13 at 30/pt: 210 + 30+35+35+35 = wait, let me recalc: 210 + 30+35+35+35... actually: groups 1-4 = 210. Group 5 (13-15) = 30/pt each. Group 6 (16-18) = 35/pt each. 13=240, 14=270, 15=300, 16=335, 17=370). Instruct the agent: "Apply the full tiered table. Do not stop at the last printed row. Extend the pattern for any surviving total above 15."
+Agent scored surviving points at incorrect tier values. The pattern is groups of 3, per-point value starting at 1.0 and increasing by 0.5 per group. Instruct the agent: "Apply the full tiered table. Do not stop at the last printed row. Extend the pattern for any surviving total above 15."
 
 **Static seal aging missed**
-A card held unplayed through one hand should age by +10 before the next hand's selection (up to 50 cap). Agent played a static card at its original 30 value instead of the correct 40. Instruct the agent: "At the end of every hand, increment each held static card's current value by 10, capped at 50. Track this value explicitly in each hand's card objects."
+A card held unplayed through one hand should age by +1 before the next hand's selection (up to 5 cap). Agent played a static card at its original 3 value instead of the correct 4. Instruct the agent: "At the end of every hand, increment each held static card's current value by 1, capped at 5. Track this value explicitly in each hand's card objects."
 
 **`resistance_effects` array left empty when Resistance was applied**
 Agent correctly halved incoming damage but did not populate the `resistance_effects` array. Instruct the agent: "Even if subtraction math is correct, you MUST populate resistance_effects with an entry for each protected suite showing incoming_damage_before and incoming_damage_after."
@@ -53,8 +53,8 @@ Agent reported a raw paper total that did not equal the sum of paper values on t
 
 ### Moderate
 
-**Scoring table values above 12 were 5 points low**
-The quick reference table in sim_instructions.md had a 5-point error starting at 13 surviving (235 instead of 240, propagating upward). This has been corrected. Always extend the tiered pattern rather than stopping at the table — the pattern is groups of 3, per-point value starting at 10 and increasing by 5 per group.
+**Scoring table values above 12 were 0.5 points low**
+The quick reference table in sim_instructions.md had errors at higher surviving values. This has been corrected. Always extend the tiered pattern rather than stopping at the table — the pattern is groups of 3, per-point value starting at 1.0 and increasing by 0.5 per group.
 
 ### Minor
 

@@ -50,7 +50,7 @@ Each round is output as a single JSON file. The root object represents one round
       "static": integer,
       "peek": integer,
       "resistance": integer,
-      "wild": integer,
+      "booster": integer,
       "swap": integer,
       "tax": integer
     }
@@ -138,13 +138,13 @@ Each round is output as a single JSON file. The root object represents one round
   "rock": integer,
   "paper": integer,
   "scissors": integer,
-  "seal": "static, peek, resistance, wild, swap, tax, or null",
+  "seal": "static, peek, resistance, booster, swap, tax, or null",
   "static_current_value": "integer or null",
-  "wild_assignment": { "rock": integer, "paper": integer, "scissors": integer } or null
+  "booster_assignment": { "rock": integer, "paper": integer, "scissors": integer } or null
 }
 ```
 
-`wild_assignment` is only present if the Wild seal was played this hand and the player assigned suite values. Otherwise null.
+`booster_assignment` is only present if the Booster seal was played this hand and the player assigned suite values. Otherwise null.
 
 `static_current_value` is the current Static point value if the seal is static. Otherwise null.
 
@@ -234,9 +234,9 @@ Used in `last_hand_conversions` and `duplicate_seal_conversions`.
 
 ## Critical Reminders
 
-> **ALL POINT VALUES USE THE 10 BASED SYSTEM.** There are no decimals anywhere. Every calculation produces a whole number.
+> **SCORES MAY INCLUDE FRACTIONAL VALUES.** No rounding is applied. Players can win or lose by half a point.
 
-> **STATIC SCORES AT FACE VALUE.** A static_current_value of 30 scores exactly 30. A static_current_value of 50 scores exactly 50. Doubled on Suite Sweep: 50 becomes 100. Do NOT multiply static_current_value by 10. The static value IS the score.
+> **STATIC SCORES AT FACE VALUE.** A static_current_value of 3 scores exactly 3. A static_current_value of 5 scores exactly 5. Doubled on Suite Sweep: 5 becomes 10. The static value IS the score.
 
 > **PEEK REVEALS FUTURE HAND SUITE TOTALS** after the opponent draws their full next hand. Not held card totals. A zero result is valid information not an error.
 
@@ -246,13 +246,13 @@ Used in `last_hand_conversions` and `duplicate_seal_conversions`.
 
 > **SWAP DRAWS 6 NEXT HAND.** Player sees their 6 card hand first, then top 5 revealed, then player picks 1 to complete hand of 7.
 
-> **SUITE SWEEP BONUS is always flat.** 30 points normally, 70 on final hand. Never apply tiering to this bonus.
+> **SUITE SWEEP BONUS is always flat.** 3 points normally, 7 on final hand. Never apply tiering to this bonus.
 
 > **DECK EXHAUSTION** leads to reshuffle of all discarded cards into a new draw pile.
 
 > **TIES IN A SUITE** mean neither player scores from that suite regardless of surviving totals.
 
-> **SCORING TABLE QUICK REFERENCE:** 1pt=10, 2pt=20, 3pt=30, 4pt=45, 5pt=60, 6pt=75, 7pt=95, 8pt=115, 9pt=135, 10pt=160, 11pt=185, 12pt=210, 13pt=240, 14pt=270, 15pt=300, 16pt=335. Pattern is groups of 3 where per point value starts at 10 and increases by 5 per group.
+> **SCORING TABLE QUICK REFERENCE:** 1pt=1.0, 2pt=2.0, 3pt=3.0, 4pt=4.5, 5pt=6.0, 6pt=7.5, 7pt=9.5, 8pt=11.5, 9pt=13.5, 10pt=16.0, 11pt=18.5, 12pt=21.0, 13pt=24.0, 14pt=27.0, 15pt=30.0, 16pt=33.5. Pattern is groups of 3 where per point value starts at 1.0 and increases by 0.5 per group.
 
 > **RUNNING TOTALS reset to 0 at the start of each round.** Hand 1 of every round starts at 0 for both players.
 

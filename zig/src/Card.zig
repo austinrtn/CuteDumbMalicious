@@ -35,7 +35,7 @@ pub const Seal = enum {
 	SWAP,
 	PEEK,
 	TAX,
-	WILD,
+	BOOSTER,
 	RESISTANCE,
 	STATIC,
 	NONE,

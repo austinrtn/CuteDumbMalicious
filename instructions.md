@@ -1,5 +1,5 @@
 GAME RULES DOCUMENT
-Version: 0.5
+Version: 0.7
 
 ================================================================================
 OVERVIEW
@@ -76,30 +76,28 @@ true on multiple seals simultaneously. If a card returns true on more than one s
 it receives only the seal with the lowest current count in the deck at that moment.
 Ties between seals of equal count are broken randomly.
 
-Sentinel cards cannot receive a Resistance seal as they have no primary suite.
-
 SEAL PROBABILITIES
 
-Static seal        — 10 percent per card
-Resistance seal    — 10 percent per card
-Swap seal          — 10 percent per card
-Wild seal          — 10 percent per card
-Peek seal          —  5 percent per card
-Tax seal           —  5 percent per card
+Static seal        — 4 percent per card
+Resistance seal    — 4 percent per card
+Swap seal          — 4 percent per card
+Booster seal       — 4 percent per card
+Peek seal          — 4 percent per card
+Tax seal           — 4 percent per card
 
 EXPECTED SEAL COUNTS AT THESE PROBABILITIES
 With 150 cards the expected distribution is approximately:
 
-Static             — 15 seals
-Resistance         — 15 seals
-Swap               — 15 seals
-Wild               — 15 seals
-Peek               —  8 seals
-Tax                —  8 seals
-Total              — 76 sealed cards across the deck
+Static             — ~6 seals
+Resistance         — ~6 seals
+Swap               — ~6 seals
+Booster            — ~6 seals
+Peek               — ~6 seals
+Tax                — ~6 seals
+Total              — ~36 sealed cards across the deck
 
-Roughly half the deck will carry a seal. Unsealed cards are standard ratio cards
-with no bonus effect.
+Roughly one fifth of the deck will carry a seal. Unsealed cards are standard
+ratio cards with no bonus effect.
 
 ================================================================================
 SEAL DESCRIPTIONS
@@ -107,15 +105,14 @@ SEAL DESCRIPTIONS
 
 STATIC SEAL
 The card gains an unsubtractable bonus point value that grows each round the card
-remains unplayed. Static value starts at 30 points and increases by 10 each round
-the card is not played. Static value is capped at 50 points.
+remains unplayed. Static value starts at 3 points and increases by 1 each round
+the card is not played. Static value is capped at 5 points.
 
-Static points score flat. Every Static point is worth exactly 10. No tiered
-scoring applies.
+Static points score flat. No tiered scoring applies.
 
 If the player achieves a Suite Sweep the round this card is played the Static
-value doubles before scoring. A Static worth 50 doubles to 100 and scores
-exactly 100 points.
+value doubles before scoring. A Static worth 5 doubles to 10 and scores
+exactly 10 points.
 
 On the final round the Peek seal converts to a Static seal worth its current
 point value as a flat scoring bonus. The card retains its full ratio contribution.
@@ -129,7 +126,7 @@ hand. This is forward looking intelligence about the following round, not
 information about currently held cards. This information is private to the Peek
 player.
 
-On the final round the Peek seal converts to a Static seal worth 30 points before
+On the final round the Peek seal converts to a Static seal worth 3 points before
 selection. The card retains its full ratio contribution. The player is informed of
 this conversion before making their selection.
 
@@ -145,11 +142,27 @@ rounded down.
 
 Resistance has no effect beyond the round it is played.
 
-WILD SEAL
-The card carrying this seal has its ratio freely reassigned by the player at the
-time of play. The player distributes the card's 9 points across Rock, Paper, and
-Scissors in any combination they choose. The card's printed ratio is ignored for
-that round.
+BOOSTER SEAL
+The card carrying this seal increases the tiered scoring multiplier for its primary
+suite by 0.5. The tiered multiplier normally starts at 1.0 for the first group of
+3 surviving points. With a Booster seal active, the multiplier starts at 1.5 instead.
+
+Normal tiered scoring:
+1-3 surviving points: 1.0 per point
+4-6 surviving points: 1.5 per point
+7-9 surviving points: 2.0 per point
+
+Boosted tiered scoring:
+1-3 surviving points: 1.5 per point
+4-6 surviving points: 2.0 per point
+7-9 surviving points: 2.5 per point
+
+For Sentinel cards carrying a Booster seal, all three suites receive the boosted
+multiplier simultaneously.
+
+If the opponent played a Tax seal on the same suite that the Booster applies to,
+the Tax player benefits from the boosted multiplier when calculating the tier
+premium to strip.
 
 SWAP SEAL
 The player sacrifices this card as one of their five played cards this round.
@@ -162,7 +175,7 @@ The opponent knows the Swap seal fired because the card was revealed during this
 round, and therefore knows the opponent drew only 6 cards next round and selected
 a 7th from the top 5. The opponent does not know which card was selected.
 
-On the final round the Swap seal converts to a Static seal worth 30 points before
+On the final round the Swap seal converts to a Static seal worth 3 points before
 selection. The card retains its full ratio contribution. The player is informed of
 this conversion before making their selection.
 
@@ -170,13 +183,13 @@ TAX SEAL
 After subtraction resolves and surviving totals are calculated, the following
 happens before scoring.
 
-Step 1. Calculate what the opponent would have scored across all surviving suites
-using the full tiered scoring system.
-Step 2. Calculate what the opponent scores across all surviving suites using only
-base rate scoring where every surviving point is worth exactly 10 regardless of
-tier.
+Step 1. Calculate what the opponent would have scored in the suite matching this
+card's primary suite using the full tiered scoring system.
+Step 2. Calculate what the opponent scores in that suite using only base rate
+scoring where every surviving point is worth exactly 1 regardless of tier.
 Step 3. The difference between these two values is the tier premium stripped.
-Step 4. The opponent scores their surviving suites at base rate only for this round.
+Step 4. The opponent scores their surviving points in that suite at base rate only
+for this round.
 Step 5. The stripped tier premium is added as flat bonus points to the Tax seal
 player's score.
 
@@ -253,8 +266,8 @@ Step 10. Scoring. Score each winning suite using the tiered system. Add any Stat
 flat points. Add any Tax seal bonus points. Add suite win bonus if applicable.
 
 Step 11. Suite Sweep bonus. If a player won two out of three suites this round
-they earn 30 flat points added directly to their score. On the final round this
-increases to 70 flat points. The Suite Sweep reward seal described in Step 3 is
+they earn 3 flat points added directly to their score. On the final round this
+increases to 7 flat points. The Suite Sweep reward seal described in Step 3 is
 delivered at the start of the following round not immediately.
 
 Step 12. Peek resolution. Any player who played a Peek sealed card this round now
@@ -263,7 +276,7 @@ following round the Peek player is informed of the opponent's total points in th
 suite across their entire next hand.
 
 Step 13. Unplayed card aging. Static sealed cards that were not played this round
-increase in value by 10 points up to the cap of 50.
+increase in value by 1 point up to the cap of 5.
 
 ================================================================================
 SUBTRACTION RULES
@@ -290,55 +303,52 @@ round down.
 SCORING SYSTEM
 ================================================================================
 
-All points are expressed in units of 10. All calculations produce whole numbers
-with no rounding required.
+Scores may include fractional values. No rounding is applied.
 
 SUITE SCORING
 Only the winner of each suite scores from that suite. The loser scores nothing
 regardless of surviving point total.
 
-Points are grouped in threes. The per point value increases by 50 with each
+Points are grouped in threes. The per point value increases by 0.5 with each
 successive group of three.
 
-First group of 3 surviving points: each point worth 10. Group total 30.
-Second group of 3 surviving points: each point worth 15. Group total 45.
-Third group of 3 surviving points: each point worth 20. Group total 60.
-Fourth group of 3 surviving points: each point worth 25. Group total 75.
-Fifth group of 3 surviving points: each point worth 30. Group total 90.
-Continue adding 50 to the per point value for each subsequent group of three.
+First group of 3 surviving points: each point worth 1.0. Group total 3.0.
+Second group of 3 surviving points: each point worth 1.5. Group total 4.5.
+Third group of 3 surviving points: each point worth 2.0. Group total 6.0.
+Fourth group of 3 surviving points: each point worth 2.5. Group total 7.5.
+Continue adding 0.5 to the per point value for each subsequent group of three.
 
 QUICK REFERENCE SCORING TABLE
 
 Surviving Points | Score
-1                | 10
-2                | 20
-3                | 30
-4                | 45
-5                | 60
-6                | 75
-7                | 95
-8                | 115
-9                | 135
-10               | 160
-11               | 185
-12               | 210
-13               | 235
-14               | 265
-15               | 295
+1                | 1.0
+2                | 2.0
+3                | 3.0
+4                | 4.5
+5                | 6.0
+6                | 7.5
+7                | 9.5
+8                | 11.5
+9                | 13.5
+10               | 16.0
+11               | 18.5
+12               | 21.0
+13               | 24.0
+14               | 27.0
+15               | 30.0
 
 STATIC SCORING
-Static sealed cards score flat. Every Static point is worth exactly 10. No tiered
-scoring applies. A Static at maximum value of 50 scores exactly 50. If doubled
-through a Suite Sweep it scores exactly 100. Static scoring is not affected by
-suite win or loss.
+Static sealed cards score flat. No tiered scoring applies. A Static at maximum
+value of 5 scores exactly 5. If doubled through a Suite Sweep it scores exactly
+10. Static scoring is not affected by suite win or loss.
 
 TAX SEAL SCORING
 The stripped tier premium is added as flat bonus points to the Tax seal player's
 score. No tiered scoring applies to the bonus points themselves.
 
 SUITE SWEEP BONUS
-Winning two out of three suites earns 30 flat points added directly to that
-player's score. On the final round this increases to 70 flat points. No tiered
+Winning two out of three suites earns 3 flat points added directly to that
+player's score. On the final round this increases to 7 flat points. No tiered
 scoring applies to this bonus.
 
 ================================================================================
@@ -370,14 +380,14 @@ Before selection on the final round the following conversions apply. Players are
 informed of all conversions before making selection decisions.
 
 Any Peek sealed card in either player's unplayed cards has its seal convert to a
-Static seal worth 30 points.
+Static seal worth 3 points.
 Any Swap sealed card in either player's unplayed cards has its seal convert to a
-Static seal worth 30 points.
+Static seal worth 3 points.
 
 All converted cards retain their full ratio point contribution. Only the seal
 changes.
 
-The Suite Sweep bonus increases from 30 flat points to 70 flat points for this
+The Suite Sweep bonus increases from 3 flat points to 7 flat points for this
 round only.
 
 The Static doubling condition still applies on the final round. A player who
@@ -388,7 +398,7 @@ card's value before scoring.
 DESIGNER NOTES
 ================================================================================
 
-This document reflects Version 0.5 of the prototype. Rules are subject to change.
+This document reflects Version 0.7 of the prototype. Rules are subject to change.
 Deck size of 150 cards is a working number and will be finalized during end stage
 development. Seal probabilities and ratio card distribution are tuning variables
 that will be adjusted based on playtesting results.

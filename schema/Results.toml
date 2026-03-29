@@ -12,17 +12,17 @@ values = ["res", "tax", "static_conversion"]
 event = "event"
 source = "string"
 target = "string"
-points = "int"
+points = "float"
 suit = "suit"
 
 [ResultPlayer]
 player = "string"
-cute = "int"
-dumb = "int"
-malicous = "int"
-static_pts = "int"
+cute = "float"
+dumb = "float"
+malicous = "float"
+static_pts = "float"
 suit_wins = "int"
-total = "int"
+total = "float"
 
 played_peek = "bool"
 played_swap = "bool"

@@ -12,23 +12,23 @@ const SuitFlags = struct {
 };
 
 const Points = struct {
-    cute: i32 = 0,
-    dumb: i32 = 0,
-    malicous: i32 = 0,
+    cute: f32 = 0,
+    dumb: f32 = 0,
+    malicous: f32 = 0,
 
     res: SuitFlags = .{},
     tax: SuitFlags = .{},
     owes_tax: SuitFlags = .{},
 
     collected_taxes: struct {
-        cute: i32 = 0,
-        dumb: i32 = 0,
-        mal: i32 = 0,
+        cute: f32 = 0,
+        dumb: f32 = 0,
+        mal: f32 = 0,
     } = .{},
 
-    static: i32 = 0,
+    static: f32 = 0,
     suit_wins: i32 = 0,
-    total: i32 = 0,
+    total: f32 = 0,
     played_peek: bool = false,
     played_swap: bool = false,
 
@@ -96,8 +96,8 @@ pub fn main() !void {
     getSuitWonPoints(&p1_points);
     getSuitWonPoints(&p2_points);
 
-    const p1_static_mult: i32 = if(p1_points.suit_wins >= 2) 2 else 1;
-    const p2_static_mult: i32 = if(p2_points.suit_wins >= 2) 2 else 1;
+    const p1_static_mult: f32 = if(p1_points.suit_wins >= 2) 2 else 1;
+    const p2_static_mult: f32 = if(p2_points.suit_wins >= 2) 2 else 1;
 
     p1_points.total += p1_points.static * p1_static_mult;
     p2_points.total += p2_points.static * p2_static_mult;
@@ -138,8 +138,8 @@ pub fn main() !void {
 }
 
 fn getSuitWonPoints(points: *Points) void {
-    if(points.suit_wins == 2) points.total += 30;
-    if(points.suit_wins == 3) points.total += 50;
+    if(points.suit_wins == 2) points.total += 3;
+    if(points.suit_wins == 3) points.total += 5;
 }
 
 fn giveWinningSuitPoints(player_A: *Points, player_B: *Points) void {
@@ -156,18 +156,18 @@ fn giveWinningSuitPoints(player_A: *Points, player_B: *Points) void {
     if(player_B.malicous > player_A.malicous) { player_B.total += player_B.malicous; player_B.suit_wins += 1; }
 }
 
-fn calcStaticPoints(cards: []const Card) i32 {
-    var points: i32 = 0;
+fn calcStaticPoints(cards: []const Card) f32 {
+    var points: f32 = 0;
     for(cards) |card| {
-        if(card.seal == .STATIC) points += 30;
+        if(card.seal == .STATIC) points += 3;
     }
     return points;
 }
 
 fn getSurvingPoints(player_A: *Points, player_B: Points) void {
-    const player_b_cute: i32 = if (player_A.res.cute) player_B.cute - @divTrunc(player_B.cute * 3, 4) else player_B.cute;
-    const player_b_dumb: i32 = if (player_A.res.dumb) player_B.dumb - @divTrunc(player_B.dumb * 3, 4) else player_B.dumb;
-    const player_b_malicous: i32 = if (player_A.res.mal) player_B.malicous - @divTrunc(player_B.malicous * 3, 4) else player_B.malicous;
+    const player_b_cute: f32 = if (player_A.res.cute) player_B.cute * 0.25 else player_B.cute;
+    const player_b_dumb: f32 = if (player_A.res.dumb) player_B.dumb * 0.25 else player_B.dumb;
+    const player_b_malicous: f32 = if (player_A.res.mal) player_B.malicous * 0.25 else player_B.malicous;
 
     player_A.cute = @max(player_A.cute - player_b_dumb, 0);
     player_A.dumb = @max(player_A.dumb - player_b_malicous, 0);
@@ -185,11 +185,11 @@ fn applyInvestmentMult(points: *Points) void {
     const incr = 1.5;
 
     const calc = struct {
-        fn func(pts: *i32, taxed: bool, threshold: usize, increment: f32) i32 {
+        fn func(pts: *f32, taxed: bool, threshold: usize, increment: f32) f32 {
             var new_points: f32 = 0;
             var taxed_points: f32 = 0;
-            var mult: f32 = 1;    
-            for(0..@as(usize, @intCast(pts.*))) |i| {
+            var mult: f32 = 1;
+            for(0..@as(usize, @intFromFloat(pts.*))) |i| {
                 // Either accumulate tiered points or taxed points if suit is taxed
                 if(!taxed) {
                     new_points += mult;
@@ -201,13 +201,13 @@ fn applyInvestmentMult(points: *Points) void {
                     taxed_points += mult;
                 }
 
-                // Increase increment for every 3 points 
+                // Increase increment for every 3 points
                 if(@mod(i + 1, threshold) == 0) {
                     mult += increment;
                 }
             }
-            pts.* =  @as(i32, @intFromFloat(new_points));
-            return @intFromFloat(taxed_points);
+            pts.* = new_points;
+            return taxed_points;
         }
     };
 
@@ -229,7 +229,7 @@ fn applyResSeal(card: *Card, points: *Points) void {
         else if(card.primary.suit == .CUTE) {
             if(points.res.cute) {
                 card.seal = .STATIC;
-                points.events.append(points.allocator, .{ .event = .static_conversion, .source = points.player, .target = points.player, .points = 30, .suit = .CUTE }) catch {};
+                points.events.append(points.allocator, .{ .event = .static_conversion, .source = points.player, .target = points.player, .points = 3, .suit = .CUTE }) catch {};
             } else {
                 points.res.cute = true;
                 points.events.append(points.allocator, .{ .event = .res, .source = points.player, .target = points.player, .suit = .CUTE }) catch {};
@@ -239,7 +239,7 @@ fn applyResSeal(card: *Card, points: *Points) void {
         else if(card.primary.suit == .DUMB) {
             if(points.res.dumb) {
                 card.seal = .STATIC;
-                points.events.append(points.allocator, .{ .event = .static_conversion, .source = points.player, .target = points.player, .points = 30, .suit = .DUMB }) catch {};
+                points.events.append(points.allocator, .{ .event = .static_conversion, .source = points.player, .target = points.player, .points = 3, .suit = .DUMB }) catch {};
             } else {
                 points.res.dumb = true;
                 points.events.append(points.allocator, .{ .event = .res, .source = points.player, .target = points.player, .suit = .DUMB }) catch {};
@@ -249,7 +249,7 @@ fn applyResSeal(card: *Card, points: *Points) void {
         else if(card.primary.suit == .MALICOUS) {
             if(points.res.mal) {
                 card.seal = .STATIC;
-                points.events.append(points.allocator, .{ .event = .static_conversion, .source = points.player, .target = points.player, .points = 30, .suit = .MALICOUS }) catch {};
+                points.events.append(points.allocator, .{ .event = .static_conversion, .source = points.player, .target = points.player, .points = 3, .suit = .MALICOUS }) catch {};
             } else {
                 points.res.mal = true;
                 points.events.append(points.allocator, .{ .event = .res, .source = points.player, .target = points.player, .suit = .MALICOUS }) catch {};
@@ -277,7 +277,7 @@ fn applyTaxSeal(card: *Card, points: *Points) void {
     else if(card.primary.suit == .CUTE) {
         if(points.tax.cute) {
             card.seal = .STATIC;
-            points.events.append(points.allocator, .{ .event = .static_conversion, .source = points.player, .target = points.player, .points = 30, .suit = .CUTE }) catch {};
+            points.events.append(points.allocator, .{ .event = .static_conversion, .source = points.player, .target = points.player, .points = 3, .suit = .CUTE }) catch {};
         } else {
             points.tax.cute = true;
             points.events.append(points.allocator, .{ .event = .tax, .source = points.player, .target = points.player, .suit = .CUTE }) catch {};
@@ -287,7 +287,7 @@ fn applyTaxSeal(card: *Card, points: *Points) void {
     else if(card.primary.suit == .DUMB) {
         if(points.tax.dumb) {
             card.seal = .STATIC;
-            points.events.append(points.allocator, .{ .event = .static_conversion, .source = points.player, .target = points.player, .points = 30, .suit = .DUMB }) catch {};
+            points.events.append(points.allocator, .{ .event = .static_conversion, .source = points.player, .target = points.player, .points = 3, .suit = .DUMB }) catch {};
         } else {
             points.tax.dumb = true;
             points.events.append(points.allocator, .{ .event = .tax, .source = points.player, .target = points.player, .suit = .DUMB }) catch {};
@@ -297,7 +297,7 @@ fn applyTaxSeal(card: *Card, points: *Points) void {
     else if(card.primary.suit == .MALICOUS) {
         if(points.tax.mal) {
             card.seal = .STATIC;
-            points.events.append(points.allocator, .{ .event = .static_conversion, .source = points.player, .target = points.player, .points = 30, .suit = .MALICOUS }) catch {};
+            points.events.append(points.allocator, .{ .event = .static_conversion, .source = points.player, .target = points.player, .points = 3, .suit = .MALICOUS }) catch {};
         } else {
             points.tax.mal = true;
             points.events.append(points.allocator, .{ .event = .tax, .source = points.player, .target = points.player, .suit = .MALICOUS }) catch {};
@@ -330,10 +330,10 @@ fn getSubmittedPoints(cards: []Card, points: *Points) void {
     }
 }
 
-fn getPointsFromCard(card: Card, suit: Suit) i32{
-    if(card.primary.suit == suit) return card.primary.val
-    else if(card.secondary.suit == suit) return card.secondary.val
-    else if(card.tertiary.suit == suit) return card.tertiary.val
+fn getPointsFromCard(card: Card, suit: Suit) f32{
+    if(card.primary.suit == suit) return @floatFromInt(card.primary.val)
+    else if(card.secondary.suit == suit) return @floatFromInt(card.secondary.val)
+    else if(card.tertiary.suit == suit) return @floatFromInt(card.tertiary.val)
     else unreachable;
 }
 
@@ -345,10 +345,10 @@ fn printPoints(label: []const u8, p1: Points, p2: Points) void {
     std.debug.print("  {s:-<8}-+-{s:-<6}-+-{s:-<6}-+-{s:-<6}-+-{s:-<6}-+-{s:-<6}-+-{s:-<6}\n", .{
         "", "", "", "", "", "", "",
     });
-    std.debug.print("  {s:<8} | {d:>6} | {d:>6} | {d:>6} | {d:>6} | {d:>6} | {d:>6}\n", .{
+    std.debug.print("  {s:<8} | {d:>6.1} | {d:>6.1} | {d:>6.1} | {d:>6.1} | {d:>6} | {d:>6.1}\n", .{
         "Player 1", p1.cute, p1.dumb, p1.malicous, p1.static, p1.suit_wins, p1.total,
     });
-    std.debug.print("  {s:<8} | {d:>6} | {d:>6} | {d:>6} | {d:>6} | {d:>6} | {d:>6}\n", .{
+    std.debug.print("  {s:<8} | {d:>6.1} | {d:>6.1} | {d:>6.1} | {d:>6.1} | {d:>6} | {d:>6.1}\n", .{
         "Player 2", p2.cute, p2.dumb, p2.malicous, p2.static, p2.suit_wins, p2.total,
     });
 }

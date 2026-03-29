@@ -31,7 +31,7 @@ const (
 	Swap Seal = "SWAP"
 	Peek Seal = "PEEK"
 	Tax Seal = "TAX"
-	Wild Seal = "WILD"
+	Booster Seal = "BOOSTER"
 	Resistance Seal = "RESISTANCE"
 	Static Seal = "STATIC"
 	None Seal = "NONE"

@@ -76,6 +76,7 @@ def getZigType(field_type):
     elif field_type == "bool": return "bool"
     elif field_type == "seal": return "Seal"
     elif field_type == "suit": return "Suit"
+    elif field_type == "float": return "f32"
     elif field_type == "event": return "Event"
     elif field_type == "Card": return "Card"
     elif field_type == "ResultPlayer": return "ResultPlayer"
@@ -84,6 +85,7 @@ def getZigType(field_type):
 def getZigDefault(field_type):
     if field_type == "string": return ' = ""'
     elif field_type == "int": return " = 0"
+    elif field_type == "float": return " = 0"
     elif field_type == "usize": return " = 0"
     elif field_type == "bool": return " = false"
     elif field_type == "seal": return " = .NONE"
@@ -150,6 +152,7 @@ def writeGo(data):
 def getGoType(field_type):
     if field_type == "string": return "string"
     elif field_type == "int": return "int"
+    elif field_type == "float": return "float64"
     elif field_type == "usize": return "int"
     elif field_type == "bool": return "bool"
     elif field_type == "seal": return "Seal"

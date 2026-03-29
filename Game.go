@@ -49,7 +49,7 @@ type Player struct {
 	InGame bool
 
 	Hand []Card
-	Points int
+	Points float64
 	CardCount int
 	HasSubmitted bool
 	SubmittedHand SubmitHand
@@ -156,7 +156,7 @@ func manageGameState(appState *AppState, res http.ResponseWriter, req *http.Requ
 		handsJSON, _ := json.Marshal(hands)
 		sendToDisplays(appState, fmt.Sprintf("hands:%s", handsJSON))
 		sendToDisplays(appState, msg)
-		sendToDisplays(appState, fmt.Sprintf("scores:%d/%d", player1.Points, player2.Points))
+		sendToDisplays(appState, fmt.Sprintf("scores:%g/%g", player1.Points, player2.Points))
 
 		game.State = ShowingResults
 
@@ -266,7 +266,7 @@ func deal(appState *AppState) {
 	player2.Client.Ch <- fmt.Sprintf("hand:%s", player2Hand)
 
 	sendToDisplays(appState, roundMsg)
-	sendToDisplays(appState, fmt.Sprintf("scores:%d/%d", player1.Points, player2.Points))
+	sendToDisplays(appState, fmt.Sprintf("scores:%g/%g", player1.Points, player2.Points))
 }
 
 func calculateResult(hands []SubmitHand) (SubmittedHandsResult, error) {
