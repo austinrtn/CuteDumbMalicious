@@ -150,6 +150,7 @@ def writeGo(data):
 def getGoType(field_type):
     if field_type == "string": return "string"
     elif field_type == "int": return "int"
+    elif field_type == "usize": return "int"
     elif field_type == "bool": return "bool"
     elif field_type == "seal": return "Seal"
     elif field_type == "suit": return "Suit"

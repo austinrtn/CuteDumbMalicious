@@ -63,6 +63,7 @@ func main() {
 	http.HandleFunc("/play", func(res http.ResponseWriter, req *http.Request) { play(appState, res, req)})
 	http.HandleFunc("/submitHand", func(res http.ResponseWriter, req *http.Request) { submitHand(appState, res, req)})
 	http.HandleFunc("/readyForNextRound", func(res http.ResponseWriter, req *http.Request) { readyForNextRound(appState, res, req)})
+	http.HandleFunc("/processSwapResult", func(res http.ResponseWriter, req *http.Request) { processSwapResult(appState, res, req)})
 
 	log.Printf("Listening to %s\n\n", PORT)
 	err := http.ListenAndServe(PORT, nil); if err != nil {

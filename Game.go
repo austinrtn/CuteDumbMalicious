@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand/v2"
 	"net/http"
 	"os"
 	"os/exec"
 	"slices"
+	"sync"
 )
 
 type NewGameRequest struct {
@@ -36,6 +38,7 @@ type Game struct {
 	State BroadcastMsg
 	Hands int
 	Deck []Card
+	DeckMu sync.Mutex
 	DeckIndex int
 	Round int
 }
@@ -67,9 +70,6 @@ const (
 )
 
 func manageGameState(appState *AppState, res http.ResponseWriter, req *http.Request) {
-	_ = res
-	_ = req
-
 	game := &appState.Game
 	player1 := &game.Player1
 	player2 := &game.Player2
@@ -93,15 +93,28 @@ func manageGameState(appState *AppState, res http.ResponseWriter, req *http.Requ
 
 	if game.State == Dealing {
 		deal(appState)
+
+		if player1.PlayedSwap {
+			sendSwap(game, player1)
+			player1.PlayedSwap = false
+		}
+
+		if player2.PlayedSwap {
+			sendSwap(game, player2)
+			player2.PlayedSwap = false
+		}
+
+		if player1.PlayedPeek {
+			peek(game, player1)
+			player1.PlayedPeek = false
+		}
+
+		if player2.PlayedPeek {
+			peek(game, player2)
+			player2.PlayedPeek = false
+		}
+
 		game.State = CardSelection
-	}
-
-	if player1.PlayedSwap {
-		triggerSwap(game, player1)
-	}
-
-	if player2.PlayedSwap {
-		triggerSwap(game, player2)
 	}
 
 	if player1.HasSubmitted && player2.HasSubmitted {
@@ -191,6 +204,9 @@ func initDeck(game *Game) {
 
 func deal(appState *AppState) {
 	game := &appState.Game
+	game.DeckMu.Lock()
+	defer game.DeckMu.Unlock()
+
 	player1 := &game.Player1
 	player2 := &game.Player2
 
@@ -227,7 +243,7 @@ func deal(appState *AppState) {
 		}
 	}
 
-	player1Hand, err := json.Marshal(player1.Hand)
+	player1Hand, err := json.Marshal(player1.Hand[:p1Target])
 	if err != nil {
 		log.Printf("Error marshaling player1 hand: %v", err)
 		return
@@ -236,7 +252,7 @@ func deal(appState *AppState) {
 	player1.Client.Ch <- roundMsg
 	player1.Client.Ch <- fmt.Sprintf("hand:%s", player1Hand)
 
-	player2Hand, err := json.Marshal(player2.Hand)
+	player2Hand, err := json.Marshal(player2.Hand[:p2Target])
 	if err != nil {
 		log.Printf("Error marshaling player2 hand: %v", err)
 		return
@@ -270,7 +286,7 @@ func calculateResult(hands []SubmitHand) (SubmittedHandsResult, error) {
 	return result, nil
 }
 
-func getTopCards(game Game, viewCardCount int) []Card {
+func getTopCards(game *Game, viewCardCount int) []Card {
 	var cards []Card
 
 	for i := 0; i < viewCardCount; i++ {
@@ -282,9 +298,16 @@ func getTopCards(game Game, viewCardCount int) []Card {
 	return cards 
 }
 
-func putCardsAtBottomOfDeck(game *Game, cards []int) {
+func putCardsAtBottomOfDeck(game *Game, cards []Card) {
 	var cardIndices []int 
+
+	for _, card := range cards {
+		foundIndex := getCardIndex(game.Deck, card)
+		cardIndices = append(cardIndices, foundIndex)
+	}
+
 	slices.SortFunc(cardIndices, func(a, b int) int {return b - a})
+
 	for cardIndex := range cardIndices {
 		card := game.Deck[cardIndex] 
 
@@ -293,8 +316,42 @@ func putCardsAtBottomOfDeck(game *Game, cards []int) {
 	}
 }
 
-func triggerSwap(game *Game, player *Player) {
-	//cardsOptions,  := getTopCards(*game, 4)
+func getCardIndex(deck []Card, card Card) int {
+	for i, deckCard := range deck {
+		if card.Id == deckCard.Id {
+			return i 
+		}
+	}
+	panic("Card could not be found in index")
+}
+
+func sendSwap(game *Game, player *Player) {
+	game.DeckMu.Lock()
+	defer game.DeckMu.Unlock()
+
+	cardOptions := getTopCards(game, 4)
+	result, err := json.Marshal(cardOptions)
+	if err != nil {
+		log.Printf("sendSwap marshal error: %v", err)
+		return
+	}
+
+	player.Client.Ch <- fmt.Sprintf("swap_options:%s", result)
+}
+
+func peek(game *Game, sourcePlayer *Player, targetPlayer *Player) {
+	var score int
+	suitChoice := rand.IntN(3)
+
+	switch suitChoice {
+		case 0: 
+			// Cute
+			score = targetPlayer.Hand
+		case 1: 
+			suit = Dumb 
+		case 2: 
+			suit = Malicous
+	}
 }
 
 func logGameState(prev, next BroadcastMsg, p1, p2 *Player) {

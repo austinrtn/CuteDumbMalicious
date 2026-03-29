@@ -5,7 +5,7 @@ type Card struct {
 	Seal Seal `json:"seal"`
 	Is_sentinel bool `json:"is_sentinel"`
 	Held bool `json:"held"`
-	Id None `json:"id"`
+	Id int `json:"id"`
 	Primary struct {
 		Val int `json:"val"`
 		Suit Suit `json:"suit"`

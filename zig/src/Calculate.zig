@@ -310,7 +310,12 @@ fn getSubmittedPoints(cards: []Card, points: *Points) void {
         switch(card.seal) {
             .RESISTANCE => applyResSeal(card, points),
             .TAX => applyTaxSeal(card, points),
-            .PEEK => points.played_peek = true,
+            .PEEK => {
+                if(points.played_peek) {
+                    card.seal = .PEEK;
+                }
+                else points.played_peek = true;
+            },
             .SWAP => {
                 if(points.played_swap) {
                     card.seal = .STATIC;

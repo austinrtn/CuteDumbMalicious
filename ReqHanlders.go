@@ -4,6 +4,13 @@ import (
 	"net/http"
 	"encoding/json"
 )
+
+type SwapResult struct {
+	Player string
+	Discarded []Card
+	Selected Card
+}
+
 func createNewGame(appState *AppState, res http.ResponseWriter, req *http.Request) {
 	var gameReq NewGameRequest
 	err := json.NewDecoder(req.Body).Decode(&gameReq)
@@ -33,11 +40,7 @@ func submitHand(appState *AppState, res http.ResponseWriter, req *http.Request) 
 	json.NewDecoder(req.Body).Decode(&request)
 
 	fmt.Printf("%s submitted hand\n", request.Player)
-	player, err := getPlayerByName(appState, request.Player)
-	if err != nil {
-		http.Error(res, "Couldnt find player name", http.StatusInternalServerError)
-		return
-	}
+	player := getPlayerByName(appState, request.Player)
 
 	var hand SubmitHand
 	hand.Player = request.Player
@@ -56,23 +59,19 @@ func readyForNextRound(appState *AppState, res http.ResponseWriter, req *http.Re
 	var playerName PlayerName
 	json.NewDecoder(req.Body).Decode(&playerName)
 
-	player, err := getPlayerByName(appState, playerName.Name)
-	if err != nil {
-		http.Error(res, "Couldnt find player name", http.StatusInternalServerError)
-		return
-	}
-
+	player := getPlayerByName(appState, playerName.Name)
 	player.ReadyForNextRound = true
 
 	manageGameState(appState, res, req)
 }
 
-func getPlayerByName(appState *AppState, playerName string) (*Player, error) {
+func getPlayerByName(appState *AppState, playerName string) *Player {
 	if appState.Game.Player1.Name == playerName {
-		return &appState.Game.Player1, nil
+		return &appState.Game.Player1
 	} else if appState.Game.Player2.Name == playerName {
-		return &appState.Game.Player2, nil
-	} else { return nil, fmt.Errorf("Could not find player \n")}
+		return &appState.Game.Player2
+	}
+	panic(fmt.Sprintf("Could not find player: %s", playerName))
 }
 
 func getConnectedPlayers(appState *AppState, res http.ResponseWriter, req *http.Request) {
@@ -93,4 +92,28 @@ func getConnectedPlayers(appState *AppState, res http.ResponseWriter, req *http.
 
 	res.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(res).Encode(ConnectedPlayersResponse{Players: players})
+}
+
+func processSwapResult(appState *AppState, res http.ResponseWriter, req *http.Request) {
+	appState.Game.DeckMu.Lock()
+	defer appState.Game.DeckMu.Unlock()
+
+	var swapResult SwapResult
+	json.NewDecoder(req.Body).Decode(&swapResult)
+	defer req.Body.Close()
+
+	player := getPlayerByName(appState, swapResult.Player)
+	putCardsAtBottomOfDeck(&appState.Game, swapResult.Discarded)
+
+	for i, card := range player.Hand {
+		if card.Held { 
+			continue 
+		} else {
+			player.Hand[i] = swapResult.Selected 
+			player.Hand[i].Held = true
+			player.CardCount++ 
+
+			break
+		}
+	}
 }
