@@ -176,7 +176,7 @@ fn giveWinningSuitPoints(player_A: *Points, player_B: *Points) void {
 fn calcStaticPoints(cards: []const Card) f32 {
     var points: f32 = 0;
     for(cards) |card| {
-        if(card.seal == .STATIC) points += 3;
+        if(card.seal == .STATIC) points += card.static_val;
     }
     return points;
 }

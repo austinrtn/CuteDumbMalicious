@@ -64,6 +64,13 @@ function computeCardLayout(count, opts) {
 
 // ── State Management ──
 
+function resetGame() {
+    G.phase = "waiting";
+    G.roundInfo = null;
+    G.scores = null;
+    resetRound();
+}
+
 function resetRound() {
     G.hand = [];
     G.selectedCards = [];
@@ -321,11 +328,23 @@ function drawScores(w, h) {
 }
 
 function drawSuitTotals(w, h) {
-    const totals = { CUTE: 0, DUMB: 0, MALICOUS: 0 };
+    const selectedTotals = { CUTE: 0, DUMB: 0, MALICOUS: 0 };
+    const unselectedTotals = { CUTE: 0, DUMB: 0, MALICOUS: 0 };
+    let staticTotal = 0;
+
     for (const card of G.selectedCards) {
-        totals[card.primary.suit]   += card.primary.val;
-        totals[card.secondary.suit] += card.secondary.val;
-        totals[card.tertiary.suit]  += card.tertiary.val;
+        selectedTotals[card.primary.suit]   += card.primary.val;
+        selectedTotals[card.secondary.suit] += card.secondary.val;
+        selectedTotals[card.tertiary.suit]  += card.tertiary.val;
+        if (card.seal === "STATIC") staticTotal += card.static_val;
+    }
+
+    for (const card of G.hand) {
+        if (G.selectedCards.indexOf(card) === -1) {
+            unselectedTotals[card.primary.suit]   += card.primary.val;
+            unselectedTotals[card.secondary.suit] += card.secondary.val;
+            unselectedTotals[card.tertiary.suit]  += card.tertiary.val;
+        }
     }
 
     if (G.roundInfo) {
@@ -336,11 +355,29 @@ function drawSuitTotals(w, h) {
     }
 
     const midY = (50 + (h - 140)) / 2;
+
+    // Row 1: selected totals
+    const showStatic = staticTotal > 0;
+    const row1Count = showStatic ? 4 : 3;
+    const row1Start = w / 2 - ((row1Count - 1) / 2) * 100;
+
     ctx.font = "bold 48px 'Black Han Sans', sans-serif";
     ctx.textAlign = "center";
     ["CUTE", "DUMB", "MALICOUS"].forEach((suit, i) => {
         ctx.fillStyle = suitColor(suit);
-        ctx.fillText(String(totals[suit]), w / 2 + (i - 1) * 100, midY);
+        ctx.fillText(String(selectedTotals[suit]), row1Start + i * 100, midY);
+    });
+
+    if (showStatic) {
+        ctx.fillStyle = "#999";
+        ctx.fillText(String(staticTotal), row1Start + 3 * 100, midY);
+    }
+
+    // Row 2: unselected totals
+    ctx.font = "bold 56px 'Black Han Sans', sans-serif";
+    ["CUTE", "DUMB", "MALICOUS"].forEach((suit, i) => {
+        ctx.fillStyle = suitColor(suit);
+        ctx.fillText(String(unselectedTotals[suit]), w / 2 + (i - 1) * 100, midY + 60);
     });
 }
 
@@ -442,7 +479,8 @@ function drawCard(x, y, cardW, cardH, card, fontScale) {
         ctx.fillStyle = "#999";
         ctx.font = `bold ${Math.floor(9 * fontScale)}px 'Black Han Sans', sans-serif`;
         ctx.textAlign = "center";
-        ctx.fillText(card.seal, x + cardW / 2, y + cardH - 8 * fontScale);
+        const sealText = card.seal === "STATIC" ? `${card.seal} ${card.static_val}` : card.seal;
+        ctx.fillText(sealText, x + cardW / 2, y + cardH - 8 * fontScale);
     }
 }
 
@@ -863,6 +901,7 @@ function onServerEvent(e) {
     if (msg === "connection_established") {
         console.log("Connection to backend established!");
     } else if (msg === "lobby_full") {
+        resetGame();
         G.phase = "connected";
         drawGame();
     }

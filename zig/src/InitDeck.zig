@@ -69,6 +69,10 @@ pub fn main() !void {
         } 
     } 
 
+    // Go through deck and check if card gains a seal via RNG
+    // Every seal has a chance of binding to a card.  If a card 
+    // pulls multiple seals, the least frequent seal in the deck 
+    // is applied 
     var id: usize = 0;
     for(deck.items) |*card| {
         card.id = id;
@@ -89,6 +93,7 @@ pub fn main() !void {
             
             if (result) |won| {
                 won.count += 1;
+                if(won.seal == .STATIC) card.static_val = 3;
                 break :blk won.seal;
             }
             break :blk .NONE;

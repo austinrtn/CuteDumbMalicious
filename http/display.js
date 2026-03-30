@@ -437,7 +437,8 @@ function drawDisplayCardFace(x, y, cardW, cardH, card) {
         ctx.fillStyle = "#999";
         ctx.font = `bold ${sealSize}px 'Black Han Sans', sans-serif`;
         ctx.textAlign = "center";
-        ctx.fillText(card.seal, x + cardW / 2, y + cardH - 8);
+        const sealText = card.seal === "STATIC" ? `${card.seal} ${card.static_val}` : card.seal;
+        ctx.fillText(sealText, x + cardW / 2, y + cardH - 8);
     }
 }
 

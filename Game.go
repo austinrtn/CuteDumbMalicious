@@ -220,9 +220,12 @@ func deal(appState *AppState) {
 	if player1.PlayedSwap { p1Target = 6 }
 	if player2.PlayedSwap { p2Target = 6 }
 
+	updateHand(&player1.Hand)
+	updateHand(&player2.Hand)
+
 	p1Held := 0
 	p2Held := 0
-	
+
 	for i := 0; i < 7; i++ {
 		if player1.Hand[i].Held { p1Held++ }
 		if player2.Hand[i].Held { p2Held++ }
@@ -267,6 +270,14 @@ func deal(appState *AppState) {
 
 	sendToDisplays(appState, roundMsg)
 	sendToDisplays(appState, fmt.Sprintf("scores:%g/%g", player1.Points, player2.Points))
+}
+
+func updateHand(hand *[]Card) {
+	for i := range *hand {
+		if (*hand)[i].Seal == Static && (*hand)[i].Static_val < 5 {
+			(*hand)[i].Static_val++
+		}
+	}
 }
 
 func calculateResult(hands []SubmitHand) (SubmittedHandsResult, error) {

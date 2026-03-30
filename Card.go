@@ -6,6 +6,7 @@ type Card struct {
 	Is_sentinel bool `json:"is_sentinel"`
 	Held bool `json:"held"`
 	Id int `json:"id"`
+	Static_val float64 `json:"static_val"`
 	Primary struct {
 		Val int `json:"val"`
 		Suit Suit `json:"suit"`

@@ -7,6 +7,7 @@ seal = "seal"
 is_sentinel = "bool"
 held = "bool"
 id = "usize"
+static_val = "float"
 
 [Card.primary]
 val = "int"
