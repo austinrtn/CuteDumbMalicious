@@ -16,8 +16,18 @@ const Points = struct {
     dumb: f32 = 0,
     malicous: f32 = 0,
 
-    res: SuitFlags = .{},
-    tax: SuitFlags = .{},
+    res: struct {
+        cute: bool = false,
+        dumb: bool = false,
+        mal: bool = false,
+        sentinel_played: bool = false,
+    } = .{},
+    tax: struct {
+        cute: bool = false,
+        dumb: bool = false,
+        mal: bool = false,
+        sentinel_played: bool = false,
+    } = .{},
     owes_tax: SuitFlags = .{},
 
     collected_taxes: struct {
@@ -29,9 +39,16 @@ const Points = struct {
     static: f32 = 0,
     suit_wins: i32 = 0,
     total: f32 = 0,
+
     played_peek: bool = false,
     played_swap: bool = false,
-
+    booster: struct {
+        cute: bool = false,
+        dumb: bool = false,
+        mal: bool = false,
+        sentinel_played: bool = false,
+    } = .{},
+    
     player: []const u8 = "",
     events: *std.ArrayList(lib.NewEvent) = undefined,
     allocator: std.mem.Allocator = undefined,
@@ -70,8 +87,8 @@ pub fn main() !void {
 
     var p1_points = Points{ .player = p1.player, .events = &events, .allocator = allocator };
     var p2_points = Points{ .player = p2.player, .events = &events, .allocator = allocator };
-    getSubmittedPoints(&p1.cards, &p1_points);
-    getSubmittedPoints(&p2.cards, &p2_points);
+    getSubmittedPoints(allocator, &p1.cards, &p1_points);
+    getSubmittedPoints(allocator, &p2.cards, &p2_points);
 
     setOwesTaxFlag(&p1_points, p2_points);
     setOwesTaxFlag(&p2_points, p1_points);
@@ -182,13 +199,25 @@ fn applyTaxes(player_A: *Points, player_B: Points) void {
 
 fn applyInvestmentMult(points: *Points) void {
     const thresh = 3;
-    const incr = 1.5;
+    const TIER_STEP: f32 = 0.5;
+    const MULT: f32 = 1.0;
+    const booster_mult = 1.5;
+
+    const cute_step: f32 = if(points.booster.cute) (TIER_STEP * booster_mult) else TIER_STEP;
+    const dumb_step: f32 = if(points.booster.dumb) (TIER_STEP * booster_mult) else TIER_STEP;
+    const mal_step: f32 = if(points.booster.mal) (TIER_STEP * booster_mult) else TIER_STEP;
+
+    const cute_mult: f32 = if(points.booster.cute) (MULT + cute_step) else MULT;
+    const dumb_mult: f32 = if(points.booster.dumb) (MULT + dumb_step) else MULT;
+    const mal_mult: f32 = if(points.booster.mal) (MULT + mal_step) else MULT;
 
     const calc = struct {
-        fn func(pts: *f32, taxed: bool, threshold: usize, increment: f32) f32 {
+        fn func(pts: *f32, multiplier: f32, taxed: bool, threshold: usize, increment: f32) f32 {
             var new_points: f32 = 0;
             var taxed_points: f32 = 0;
-            var mult: f32 = 1;
+            var mult = multiplier;
+
+            // Iterate for each surving point
             for(0..@as(usize, @intFromFloat(pts.*))) |i| {
                 // Either accumulate tiered points or taxed points if suit is taxed
                 if(!taxed) {
@@ -211,19 +240,26 @@ fn applyInvestmentMult(points: *Points) void {
         }
     };
 
-    points.collected_taxes.cute += calc.func(&points.cute, points.owes_tax.cute, thresh, incr);
-    points.collected_taxes.dumb += calc.func(&points.dumb, points.owes_tax.dumb, thresh, incr);
-    points.collected_taxes.mal += calc.func(&points.malicous, points.owes_tax.mal, thresh, incr);
+    points.collected_taxes.cute += calc.func(&points.cute, cute_mult, points.owes_tax.cute, thresh, cute_step);
+    points.collected_taxes.dumb += calc.func(&points.dumb, dumb_mult, points.owes_tax.dumb, thresh, dumb_step);
+    points.collected_taxes.mal += calc.func(&points.malicous, mal_mult, points.owes_tax.mal, thresh, mal_step);
 }
 
 fn applyResSeal(card: *Card, points: *Points) void {
     if(card.seal == .RESISTANCE) {
-        if(card.is_sentinel) {
+        if(card.is_sentinel and !points.res.sentinel_played) {
             points.res.cute = true;
             points.res.dumb = true;
             points.res.mal = true;
+            points.res.sentinel_played = true;
             for ([_]Suit{ .CUTE, .DUMB, .MALICOUS }) |s| {
                 points.events.append(points.allocator, .{ .event = .res, .source = points.player, .target = points.player, .suit = s }) catch {};
+            }
+        }
+        else if(card.is_sentinel and points.res.sentinel_played) {
+            card.seal = .STATIC;
+            for ([_]Suit{ .CUTE, .DUMB, .MALICOUS }) |s| {
+                points.events.append(points.allocator, .{ .event = .static_conversion, .source = points.player, .target = points.player, .points = 3, .suit = s }) catch {};
             }
         }
         else if(card.primary.suit == .CUTE) {
@@ -265,12 +301,20 @@ fn setOwesTaxFlag(player_A: *Points, player_B: Points) void {
 }
 
 fn applyTaxSeal(card: *Card, points: *Points) void {
-    if(card.is_sentinel) {
+    if(card.is_sentinel and !points.tax.sentinel_played) {
         points.tax.cute = true;
         points.tax.dumb = true;
         points.tax.mal = true;
+        points.tax.sentinel_played = true;
         for ([_]Suit{ .CUTE, .DUMB, .MALICOUS }) |s| {
             points.events.append(points.allocator, .{ .event = .tax, .source = points.player, .target = points.player, .suit = s }) catch {};
+        }
+        return;
+    }
+    else if(card.is_sentinel and points.tax.sentinel_played) {
+        card.seal = .STATIC;
+        for ([_]Suit{ .CUTE, .DUMB, .MALICOUS }) |s| {
+            points.events.append(points.allocator, .{ .event = .static_conversion, .source = points.player, .target = points.player, .points = 3, .suit = s }) catch {};
         }
         return;
     }
@@ -305,28 +349,51 @@ fn applyTaxSeal(card: *Card, points: *Points) void {
     }
 }
 
-fn getSubmittedPoints(cards: []Card, points: *Points) void {
-    for(cards) |*card| {
-        switch(card.seal) {
+
+fn getSubmittedPoints(allocator: std.mem.Allocator, cards: []Card, points: *Points) void {
+    var sealed_cards = std.ArrayList(*Card){};
+    defer sealed_cards.deinit(allocator);
+
+    for(cards) |*card|  if(card.seal != .NONE) {
+        if(card.is_sentinel) { sealed_cards.insert(allocator, 0, card) catch {}; }
+        else sealed_cards.append(allocator, card) catch {}; 
+    };
+
+    for(sealed_cards.items) |card|  switch(card.seal) {
             .RESISTANCE => applyResSeal(card, points),
             .TAX => applyTaxSeal(card, points),
             .PEEK => {
-                if(points.played_peek) {
-                    card.seal = .PEEK;
-                }
-                else points.played_peek = true;
+                // Update coming visibile in todo.md
+                if(points.played_peek) card.seal = .STATIC else points.played_peek = true;
             },
-            .SWAP => {
-                if(points.played_swap) {
-                    card.seal = .STATIC;
+            .BOOSTER => {
+                var convert_static = false;
+                if(card.is_sentinel and !points.booster.sentinel_played) {
+                    points.booster.cute = true;
+                    points.booster.dumb = true;
+                    points.booster.mal = true;
+                    points.booster.sentinel_played = true;
                 }
-                else points.played_swap = true;
+                // Will implement that a static seal with extra pts instead of just 3 conversion
+                else if(card.is_sentinel and points.booster.sentinel_played) { convert_static = true; }
+
+                else if(!card.is_sentinel) switch(card.primary.suit) {
+                    .CUTE => if(points.booster.cute) { convert_static = true; } else { points.booster.cute = true; },
+                    .DUMB=> if(points.booster.dumb) { convert_static = true; } else { points.booster.dumb = true; },
+                    .MALICOUS => if(points.booster.mal) { convert_static = true; } else { points.booster.mal = true; },
+                };
+                if(convert_static and !card.is_sentinel) card.seal = .STATIC;
+                //else if(convert_static and card.is_sentinel) increase static poitns 
             },
+            .SWAP => { if(points.played_swap) card.seal = .STATIC else points.played_swap = true; },
             else => {},
-        }
-        points.cute += getPointsFromCard(card.*, .CUTE);
-        points.dumb += getPointsFromCard(card.*, .DUMB);
-        points.malicous += getPointsFromCard(card.*, .MALICOUS);
+        };
+        
+        
+    for(cards) |card| {
+        points.cute += getPointsFromCard(card, .CUTE);
+        points.dumb += getPointsFromCard(card, .DUMB);
+        points.malicous += getPointsFromCard(card, .MALICOUS);
     }
 }
 
