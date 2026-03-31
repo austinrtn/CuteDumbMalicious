@@ -7,6 +7,7 @@ pub const Card = struct {
 	held: bool = false,
 	id: usize = 0,
 	static_val: f32 = 0,
+	age: i32 = 0,
 	primary: struct {
 		val: i32 = 0, 
 		suit: Suit = undefined, 

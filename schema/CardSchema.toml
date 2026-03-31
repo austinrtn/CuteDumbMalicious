@@ -8,6 +8,7 @@ is_sentinel = "bool"
 held = "bool"
 id = "usize"
 static_val = "float"
+age = "int"
 
 [Card.primary]
 val = "int"

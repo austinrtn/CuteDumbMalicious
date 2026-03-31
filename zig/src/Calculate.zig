@@ -9,6 +9,7 @@ const SuitFlags = struct {
     cute: bool = false,
     dumb: bool = false,
     mal: bool = false,
+    sentinel_played: bool = false,
 };
 
 const Points = struct {
@@ -16,25 +17,16 @@ const Points = struct {
     dumb: f32 = 0,
     malicous: f32 = 0,
 
-    res: struct {
-        cute: bool = false,
-        dumb: bool = false,
-        mal: bool = false,
-        sentinel_played: bool = false,
-    } = .{},
-    tax: struct {
-        cute: bool = false,
-        dumb: bool = false,
-        mal: bool = false,
-        sentinel_played: bool = false,
-    } = .{},
     owes_tax: SuitFlags = .{},
-
-    collected_taxes: struct {
-        cute: f32 = 0,
+    collected_taxes: struct{
+        cute: f32 = 0, 
         dumb: f32 = 0,
         mal: f32 = 0,
     } = .{},
+
+    res: SuitFlags = .{},
+    tax: SuitFlags = .{},
+    booster: SuitFlags = .{},
 
     static: f32 = 0,
     suit_wins: i32 = 0,
@@ -42,13 +34,7 @@ const Points = struct {
 
     played_peek: bool = false,
     played_swap: bool = false,
-    booster: struct {
-        cute: bool = false,
-        dumb: bool = false,
-        mal: bool = false,
-        sentinel_played: bool = false,
-    } = .{},
-    
+
     player: []const u8 = "",
     events: *std.ArrayList(lib.NewEvent) = undefined,
     allocator: std.mem.Allocator = undefined,
@@ -360,36 +346,55 @@ fn getSubmittedPoints(allocator: std.mem.Allocator, cards: []Card, points: *Poin
     };
 
     for(sealed_cards.items) |card|  switch(card.seal) {
-            .RESISTANCE => applyResSeal(card, points),
-            .TAX => applyTaxSeal(card, points),
-            .PEEK => {
-                // Update coming visibile in todo.md
-                if(points.played_peek) card.seal = .STATIC else points.played_peek = true;
-            },
-            .BOOSTER => {
-                var convert_static = false;
-                if(card.is_sentinel and !points.booster.sentinel_played) {
-                    points.booster.cute = true;
-                    points.booster.dumb = true;
-                    points.booster.mal = true;
-                    points.booster.sentinel_played = true;
-                }
-                // Will implement that a static seal with extra pts instead of just 3 conversion
-                else if(card.is_sentinel and points.booster.sentinel_played) { convert_static = true; }
+        .RESISTANCE => applyResSeal(card, points),
+        .TAX => applyTaxSeal(card, points),
+        .PEEK => {
+            var convert_static = false;
+            if(card.is_sentinel and !points.booster.sentinel_played) {
+                points.booster.cute = true;
+                points.booster.dumb = true;
+                points.booster.mal = true;
+                points.booster.sentinel_played = true;
+            }
+            // Will implement that a static seal with extra pts instead of just 3 conversion
+            else if(card.is_sentinel and points.booster.sentinel_played) { convert_static = true; }
+            else if(!card.is_sentinel) switch(card.primary.suit) {
+                .CUTE => if(points.booster.cute) { convert_static = true; } else { points.booster.cute = true; },
+                .DUMB=> if(points.booster.dumb) { convert_static = true; } else { points.booster.dumb = true; },
+                .MALICOUS => if(points.booster.mal) { convert_static = true; } else { points.booster.mal = true; },
+            }
+            else if(convert_static and !card.is_sentinel) card.seal = .STATIC
+            else if(convert_static and card.is_sentinel) {
+                card.seal = .STATIC;
+                card.static_val = 10;
+            }
+        },
+        .BOOSTER => {
+            var convert_static = false;
+            if(card.is_sentinel and !points.booster.sentinel_played) {
+                points.booster.cute = true;
+                points.booster.dumb = true;
+                points.booster.mal = true;
+                points.booster.sentinel_played = true;
+            }
+            // Will implement that a static seal with extra pts instead of just 3 conversion
+            else if(card.is_sentinel and points.booster.sentinel_played) { convert_static = true; }
+            else if(!card.is_sentinel) switch(card.primary.suit) {
+                .CUTE => if(points.booster.cute) { convert_static = true; } else { points.booster.cute = true; },
+                .DUMB=> if(points.booster.dumb) { convert_static = true; } else { points.booster.dumb = true; },
+                .MALICOUS => if(points.booster.mal) { convert_static = true; } else { points.booster.mal = true; },
+            }
+            else if(convert_static and !card.is_sentinel) card.seal = .STATIC
+            else if(convert_static and card.is_sentinel) {
+                card.seal = .STATIC;
+                card.static_val = 10;
+            }
+        },
+        .SWAP => { if(points.played_swap) card.seal = .STATIC else points.played_swap = true; },
+        else => {},
+    };
 
-                else if(!card.is_sentinel) switch(card.primary.suit) {
-                    .CUTE => if(points.booster.cute) { convert_static = true; } else { points.booster.cute = true; },
-                    .DUMB=> if(points.booster.dumb) { convert_static = true; } else { points.booster.dumb = true; },
-                    .MALICOUS => if(points.booster.mal) { convert_static = true; } else { points.booster.mal = true; },
-                };
-                if(convert_static and !card.is_sentinel) card.seal = .STATIC;
-                //else if(convert_static and card.is_sentinel) increase static poitns 
-            },
-            .SWAP => { if(points.played_swap) card.seal = .STATIC else points.played_swap = true; },
-            else => {},
-        };
-        
-        
+
     for(cards) |card| {
         points.cute += getPointsFromCard(card, .CUTE);
         points.dumb += getPointsFromCard(card, .DUMB);
@@ -425,12 +430,12 @@ fn printCard(i: usize, card: Card) void {
         i + 1,
         @tagName(card.seal),
         if (card.is_sentinel) "yes" else "no",
-        card.primary.val,
-        @tagName(card.primary.suit),
-        card.secondary.val,
-        @tagName(card.secondary.suit),
-        card.tertiary.val,
-        @tagName(card.tertiary.suit),
+            card.primary.val,
+            @tagName(card.primary.suit),
+            card.secondary.val,
+            @tagName(card.secondary.suit),
+            card.tertiary.val,
+            @tagName(card.tertiary.suit),
     });
 }
 

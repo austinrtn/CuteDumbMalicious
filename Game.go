@@ -220,13 +220,13 @@ func deal(appState *AppState) {
 	if player1.PlayedSwap { p1Target = 6 }
 	if player2.PlayedSwap { p2Target = 6 }
 
-	updateHand(&player1.Hand)
-	updateHand(&player2.Hand)
+	ageHeldCards(player1.Hand)
+	ageHeldCards(player2.Hand)
 
 	p1Held := 0
 	p2Held := 0
 
-	for i := 0; i < 7; i++ {
+	for i := range 7 {
 		if player1.Hand[i].Held { p1Held++ }
 		if player2.Hand[i].Held { p2Held++ }
 	}
@@ -234,7 +234,7 @@ func deal(appState *AppState) {
 	p1Dealt := 0
 	p2Dealt := 0
 
-	for i := 0; i < 7; i++ {
+	for i := range 7 {
 		if !player1.Hand[i].Held && p1Held+p1Dealt < p1Target {
 			player1.Hand[i] = game.Deck[game.DeckIndex]
 			player1.Hand[i].Held = true
@@ -250,6 +250,9 @@ func deal(appState *AppState) {
 			game.DeckIndex++
 		}
 	}
+
+	updateHand(game, player1.Hand)
+	updateHand(game, player2.Hand)
 
 	player1Hand, err := json.Marshal(player1.Hand[:p1Target])
 	if err != nil {
@@ -272,10 +275,29 @@ func deal(appState *AppState) {
 	sendToDisplays(appState, fmt.Sprintf("scores:%g/%g", player1.Points, player2.Points))
 }
 
-func updateHand(hand *[]Card) {
-	for i := range *hand {
-		if (*hand)[i].Seal == Static && (*hand)[i].Static_val < 5 {
-			(*hand)[i].Static_val++
+func ageHeldCards(hand []Card) {
+	for i := range hand {
+		if hand[i].Held {
+			hand[i].Age += 1
+		}
+	}
+}
+
+func updateHand(game *Game, hand []Card) {
+	lastRound := (game.Round == game.Hands - 1)
+
+	for i := range hand {
+		card := &hand[i]
+		if card.Seal == Static && card.Age > 0 && card.Static_val < 5 {
+			card.Static_val++
+		}
+
+		if !lastRound { continue }
+
+		switch card.Seal {
+			case Peek, Swap: {
+				card.Seal = Static
+			}
 		}
 	}
 }
