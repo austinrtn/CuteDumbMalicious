@@ -381,6 +381,11 @@ function drawSuitTotals(w, h) {
     });
 }
 
+function activePeekSuits() {
+    return [["CUTE", G.peekData.Cute], ["DUMB", G.peekData.Dumb], ["MALICOUS", G.peekData.Mal]]
+        .filter(([, v]) => v > 0);
+}
+
 function drawPeekReveal(w, h) {
     const FADE_START = 72;
     const FADE_END   = 90;
@@ -407,49 +412,51 @@ function drawPeekReveal(w, h) {
     ctx.font = "bold 52px 'Black Han Sans', sans-serif";
     ctx.textAlign = "center";
     ctx.fillStyle = "#f1c40f";
-    ctx.fillText("PEEK!", cx, cy - 60);
-
-    // Suit colour label + value
-    const suit  = G.peekData.suit;
-    const val   = G.peekData.val;
-    const color = suitColor(suit);
-
-    ctx.globalAlpha = overallAlpha;
-    ctx.font = "bold 28px 'Black Han Sans', sans-serif";
-    ctx.fillStyle = "#ddd";
-    ctx.fillText("Opponent's", cx, cy - 10);
-
-    ctx.fillStyle = color;
-    ctx.fillText(suitLabel(suit).toUpperCase() + " total:", cx, cy + 30);
-
-    ctx.font = "bold 52px 'Black Han Sans', sans-serif";
-    ctx.fillStyle = color;
-    ctx.fillText(String(val), cx, cy + 90);
+    ctx.fillText("PEEK!", cx, cy);
 
     ctx.restore();
 }
 
 function drawPeekInfo(w, h) {
-    const suit  = G.peekData.suit;
-    const val   = G.peekData.val;
-    const color = suitColor(suit);
-    const label = "\u{1F441} " + suitLabel(suit) + " " + val;
+    const suits = activePeekSuits();
+    const GAP = 12;
+    const by  = 50;
+    const boxH = 22;
 
     ctx.font = "bold 15px 'Black Han Sans', sans-serif";
-    ctx.textAlign = "center";
 
-    const textW = ctx.measureText(label).width + 18;
-    const boxH  = 22;
-    const bx    = (w - textW) / 2;
-    const by    = 50;
+    // Measure all segments to compute total width
+    const eyeW = ctx.measureText("\u{1F441} ").width;
+    const suitSegments = suits.map(([suit, val]) => {
+        const text = suitLabel(suit) + " " + val;
+        return { suit, text, w: ctx.measureText(text).width };
+    });
+    const totalTextW = eyeW + suitSegments.reduce((acc, s, i) => acc + s.w + (i > 0 ? GAP : 0), 0);
+
+    const boxW = totalTextW + 18;
+    const bx   = (w - boxW) / 2;
 
     ctx.fillStyle = "rgba(0,0,0,0.45)";
     ctx.beginPath();
-    ctx.roundRect(bx, by, textW, boxH, 5);
+    ctx.roundRect(bx, by, boxW, boxH, 5);
     ctx.fill();
 
-    ctx.fillStyle = color;
-    ctx.fillText(label, w / 2, by + 15);
+    ctx.textAlign = "left";
+    let x = bx + 9;
+    const textY = by + 15;
+
+    ctx.fillStyle = "#ddd";
+    ctx.fillText("\u{1F441} ", x, textY);
+    x += eyeW;
+
+    for (let i = 0; i < suitSegments.length; i++) {
+        if (i > 0) x += GAP;
+        ctx.fillStyle = suitColor(suitSegments[i].suit);
+        ctx.fillText(suitSegments[i].text, x, textY);
+        x += suitSegments[i].w;
+    }
+
+    ctx.textAlign = "center";
 }
 
 function drawCard(x, y, cardW, cardH, card, fontScale) {

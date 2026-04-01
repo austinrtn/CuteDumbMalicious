@@ -8,6 +8,12 @@ values = ["res", "tax", "static_conversion"]
 ###########
 # STRUCTS
 ###########
+[SuitFlags]
+cute = "bool"
+dumb = "bool"
+mal = "bool"
+played_sentinel = "bool"
+
 [NewEvent]
 event = "event"
 source = "string"
@@ -23,9 +29,9 @@ malicous = "float"
 static_pts = "float"
 suit_wins = "int"
 total = "float"
-
 played_peek = "bool"
 played_swap = "bool"
+peek_flags = "SuitFlags"
 
 [SubmittedHandsResult]
 p1 = "ResultPlayer"

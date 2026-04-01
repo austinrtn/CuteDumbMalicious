@@ -11,6 +11,7 @@ pub const NewEvent = EventLib.NewEvent;
 pub const Event = EventLib.Event;
 pub const ResultPlayer = EventLib.ResultPlayer;
 pub const SubmittedHandsResult = EventLib.SubmittedHandsResult;
+pub const SuitFlags = EventLib.SuitFlags;
 
 pub fn getPrng() !std.Random.DefaultPrng {
     var seed: u64 = undefined;

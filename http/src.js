@@ -44,7 +44,7 @@ function newGameMenu() {
     title.className = "menu-title";
     title.textContent = "New Game";
 
-    const handsOptions = [3, 5, 9];
+    const handsOptions = [5, 9, 12];
     let handsIndex = 0;
 
     const handsBtn = document.createElement("button");

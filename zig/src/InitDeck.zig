@@ -11,7 +11,7 @@ var Seals = [_]SealData{
     SealData{ .seal = .BOOSTER },
     SealData{ .seal = .RESISTANCE },
     SealData{ .seal = .TAX },
-    SealData{ .seal = .PEEK },
+    SealData{ .seal = .PEEK, .chance = 40 },
     SealData{ .seal = .SWAP },
 };
 

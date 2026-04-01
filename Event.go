@@ -8,6 +8,13 @@ const (
 	EventStatic_conversion Event = "static_conversion"
 )
 
+type SuitFlags struct {
+	Cute bool `json:"cute"`
+	Dumb bool `json:"dumb"`
+	Mal bool `json:"mal"`
+	Played_sentinel bool `json:"played_sentinel"`
+}
+
 type NewEvent struct {
 	Event Event `json:"event"`
 	Source string `json:"source"`
@@ -26,6 +33,7 @@ type ResultPlayer struct {
 	Total float64 `json:"total"`
 	Played_peek bool `json:"played_peek"`
 	Played_swap bool `json:"played_swap"`
+	Peek_flags SuitFlags `json:"peek_flags"`
 }
 
 type SubmittedHandsResult struct {

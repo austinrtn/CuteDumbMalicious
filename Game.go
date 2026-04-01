@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"math/rand/v2"
 	"net/http"
 	"os"
 	"os/exec"
@@ -57,6 +56,8 @@ type Player struct {
 
 	PlayedPeek bool
 	PlayedSwap bool
+
+	PeekFlags SuitFlags
 }
 
 type PeekData struct {
@@ -109,15 +110,8 @@ func manageGameState(appState *AppState, res http.ResponseWriter, req *http.Requ
 			player2.PlayedSwap = false
 		}
 
-		if player1.PlayedPeek {
-			peek(game, player1, player2)
-			player1.PlayedPeek = false
-		}
-
-		if player2.PlayedPeek {
-			peek(game, player2, player1)
-			player2.PlayedPeek = false
-		}
+		peek(game, player1, player2)
+		peek(game, player2, player1)
 
 		game.State = CardSelection
 	}
@@ -146,12 +140,14 @@ func manageGameState(appState *AppState, res http.ResponseWriter, req *http.Requ
 		player2.Client.Ch <- msg
 
 		player1.Points += result.P1.Total
-		player1.PlayedPeek = result.P1.Played_peek
 		player1.PlayedSwap = result.P1.Played_swap
+		player1.PlayedPeek = result.P1.Played_peek
+		player1.PeekFlags = result.P1.Peek_flags
 
 		player2.Points += result.P2.Total
-		player2.PlayedPeek = result.P2.Played_peek
 		player2.PlayedSwap = result.P2.Played_swap
+		player2.PlayedPeek = result.P2.Played_peek
+		player2.PeekFlags = result.P2.Peek_flags
 
 		handsJSON, _ := json.Marshal(hands)
 		sendToDisplays(appState, fmt.Sprintf("hands:%s", handsJSON))
@@ -378,20 +374,26 @@ func sendSwap(game *Game, player *Player) {
 }
 
 func peek(game *Game, sourcePlayer *Player, targetPlayer *Player) {
-	var peekData PeekData
-	suitChoice := rand.IntN(3)
+	if !sourcePlayer.PlayedPeek { return }
 
-	switch suitChoice {
-		case 0: 
-			peekData.Suit = Cute
-		case 1: 
-			peekData.Suit = Dumb
-		case 2: 
-			peekData.Suit = Malicous 
+	type PeekData struct {
+		Cute, Dumb, Mal int
 	}
 
+	var peekData PeekData
+
 	for _, card := range targetPlayer.Hand {
-		peekData.Val += getSuitPointsFromCard(card, peekData.Suit)
+		if sourcePlayer.PeekFlags.Cute {
+			peekData.Cute += getSuitPointsFromCard(card, Cute)
+		}
+
+		if sourcePlayer.PeekFlags.Dumb {
+			peekData.Dumb += getSuitPointsFromCard(card, Dumb)
+		}
+
+		if sourcePlayer.PeekFlags.Mal {
+			peekData.Mal += getSuitPointsFromCard(card, Malicous)
+		}
 	}
 
 	result, err := json.Marshal(peekData)
@@ -401,6 +403,7 @@ func peek(game *Game, sourcePlayer *Player, targetPlayer *Player) {
 	}
 
 	sourcePlayer.Client.Ch <- fmt.Sprintf("peek_data:%s", result)
+	sourcePlayer.PlayedPeek = false
 }
 
 func getSuitPointsFromCard(card Card, suit Suit) int {

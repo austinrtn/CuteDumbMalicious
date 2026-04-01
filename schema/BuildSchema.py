@@ -81,6 +81,7 @@ def getZigType(field_type):
     elif field_type == "Card": return "Card"
     elif field_type == "ResultPlayer": return "ResultPlayer"
     elif field_type == "NewEvent": return "NewEvent"
+    elif field_type == "SuitFlags": return "SuitFlags"
 
 def getZigDefault(field_type):
     if field_type == "string": return ' = ""'
@@ -94,6 +95,7 @@ def getZigDefault(field_type):
     elif field_type == "Card": return " = .{}"
     elif field_type == "ResultPlayer": return " = .{}"
     elif field_type == "NewEvent": return " = .{}"
+    elif field_type == "SuitFlags": return " = .{}"
 
 def writeGo(data):
     json_tags = data["Card"].get("json_tags", {})
@@ -161,6 +163,7 @@ def getGoType(field_type):
     elif field_type == "Card": return "Card"
     elif field_type == "ResultPlayer": return "ResultPlayer"
     elif field_type == "NewEvent": return "NewEvent"
+    elif field_type == "SuitFlags": return "SuitFlags"
 
 
 def writeZigResults(data):

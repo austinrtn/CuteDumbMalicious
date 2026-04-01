@@ -6,6 +6,13 @@ pub const Event = enum {
 	static_conversion,
 };
 
+pub const SuitFlags = struct {
+	cute: bool = false,
+	dumb: bool = false,
+	mal: bool = false,
+	played_sentinel: bool = false,
+};
+
 pub const NewEvent = struct {
 	event: Event = undefined,
 	source: []const u8 = "",
@@ -24,6 +31,7 @@ pub const ResultPlayer = struct {
 	total: f32 = 0,
 	played_peek: bool = false,
 	played_swap: bool = false,
+	peek_flags: SuitFlags = .{},
 };
 
 pub const SubmittedHandsResult = struct {
